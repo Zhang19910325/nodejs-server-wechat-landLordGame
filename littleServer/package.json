@@ -1,0 +1,24 @@
+{
+  "name": "littleserver",
+  "version": "1.0.0",
+  "description": "小程序服务器",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "zhangmiao",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.0",
+    "crc": "^3.5.0",
+    "google-protobuf": "^3.5.0",
+    "grpc": "^1.11.3",
+    "grpc-tools": "^1.6.6",
+    "long": "^4.0.0",
+    "object.entries": "^1.0.4",
+    "seq-queue": "0.0.5",
+    "socket.io": "^0.9.19",
+    "socket.io-client": "^2.1.0",
+    "ws": "^5.1.1"
+  }
+}

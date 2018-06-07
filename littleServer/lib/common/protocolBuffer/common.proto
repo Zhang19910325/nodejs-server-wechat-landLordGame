@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+enum SvrMsgType{
+    register = 0;
+    monitor = 1;
+    client = 2;
+    reconnect = 3;
+    disconnect = 4;
+}
+
+//服务器间交互的通用协议
+message svrMsg{
+    uint32 req_id    = 1;//请求id，服务客户端请求的标示，客户端维护
+    uint32 type     = 2;//请求类型，决定后面的解析类型
+    bytes  msg_body  = 3;
+}
+
+//用于register和reconnect
+message connectMsg{
+   string server_type = 1;
+   string info = 2;
+   string id = 3;
+}
+
+message monitorMsg{
+    string module_id = 1;
+    string resp_id   = 2;
+    string error    = 3;
+    string body     = 4;
+}
+
+
+message clientMsg{
+    string module_id = 1;
+    string resp_id   = 2;
+    string error    = 3;
+    string body     = 4;
+    uint32 command  = 5;
+}
+
+
+//与route服务器之间的交互信息
+enum RouteMsgType{
+    RouteRegister = 0;//发送注册消息,数据刚开始建立连接的时候由客户端（其实也是个服务器）发送
+    RouteData = 1;//纯发送数据,后面数据自行解析(服务器注册后的数据交互)
+}
+
+message routeMsg{
+    uint32 type = 1; //请求类型
+    bytes msg_body = 2; //具体数据
+}
+
+message routeRegister{
+    string server_id = 1;
+    string server_type = 2;
+    string info = 3;
+}

@@ -1,0 +1,144 @@
+syntax = "proto2";
+enum Cmd {
+    kHandsakeReq  = 0x101;//握手协议请求
+    kHandshakeRsp = 0x102;//握手协议回报
+
+    kLandLordStart = 0x10000; //斗地主   命令值  起始点
+    kLandLordJoinGameReq = 0x10001; //斗地主加入游戏 请求
+    kLandLordJoinGameRsp = 0x10002; //斗地主加入游戏 回报
+    kLandLordStartGameReq = 0x10003; //斗地主开始游戏 请求
+    kLandLordStartGameRsp = 0x10004; //斗地主开始游戏 回报
+    kLandLordRobLandReq = 0x10005; //抢地主 请求
+    kLandLordRobLandRsp = 0x10006; //抢地主 回报
+    kLandLordPlayCardReq = 0x10007; //出牌请求
+    kLandLordPlayCardRsp = 0x10008; //出牌回包
+
+    kLandLordDeskUpdateNty = 0x12000; //斗地主桌子信息更新
+    kLandLordStartGameNty = 0x12002; //游戏开始通知
+    kLandLordRobLandNty = 0x12004;//玩家抢地主通知 未实现
+    kLandLordSetLandLordNty = 0x12006;//玩家地主确定通知
+    kLandLordPlayCardNty = 0x12008;//玩家出牌通知
+    kLandLordGameOverNty = 0x1200A;//游戏结束通知
+    kLandLordEnd = 0x1ffff;//斗地主 命令值 结束点
+}
+
+//错误码枚举
+enum ErrCode {
+    kLandLordScoreErr = 0x10001;//抢地主分数错误
+    kLandLordPlayCardErr = 0x10002;//出牌牌型错误
+}
+
+//公共包头
+message RspHead{
+    optional uint32 code = 1;//请求回报错误码
+    optional string des = 2;//请求回报错误描述
+}
+//玩家状态
+enum PlayerStatus {
+    Normal = 1; //正常
+    Leave = 2; //离开
+    Offline = 3; //掉线
+}
+
+//桌子状态
+enum DeskStatus {
+    Ready = 1; //等待准备
+    RobLorad = 2; //抢地主
+    PlayCard = 3; //出牌
+}
+
+//kHandsakeReq 0x101
+//这里其实要存放一些用于校验合法用户的信息，我这里的包头里面已经带了uid所以这里没什么需要带的
+//用户校验可以学习一下密码学
+message C2SHandshakeReq
+{
+}
+
+//kLandLordJoinGameReq 0x10001
+//这里其实可以存放一些用于客户端校验服务器信息的数据，todo 自己去加
+message S2CHandshakeRsp
+{
+}
+
+//kLandLordJoinGameRsp 0x10002
+message JoinGameRsp{
+    optional RspHead rsp_head = 1; //请求包头
+    optional string desk_no = 2; //自己进入游戏后的桌子号
+    optional string seat_no = 3; //自己进入游戏后的座位号
+    repeated PlayerInfo players = 4; //用户数组列表
+}
+
+
+
+//用户的信息
+message PlayerInfo {
+    optional string name = 1;//用户的名称
+    optional uint64 uid = 2;//用户的uid
+    optional bool is_ready = 3;//是否准备好
+    optional string desk_no = 4;//桌子号
+    optional string seat_no = 5;//座位号
+    optional string pre_seat_no = 6; //上一位座位号
+    optional string next_seat_no = 7; //下一位座位号
+    optional uint32 score = 8;//目前分数
+    repeated CardInfo cards = 9;//用户当前的牌型
+    //todo 是否告知当前网络状态
+}
+
+//kLandLordStartGameNty 0x12002
+//各个玩家的开始游戏通知
+message StartGameNty {
+    optional string firstRob = 1;//开始叫地主的座位号
+    repeated CardInfo cards = 2;//自己的牌型
+}
+
+//牌信息
+message CardInfo {
+    optional string type = 1; //花色 鬼:0 黑:1 红:2 梅:3 方:4
+    optional uint32 val = 2; //值大小 3 -> 13  A:14 2:15 小鬼:16 大鬼:17
+}
+
+//抢地主请求 kLandLordRobLandReq 0x10005
+message RobLandReq{
+    optional uint32 score = 1;//抢地主分数
+}
+
+//抢地主回包 kLandLordRobLandRsp 0x10006
+message RobLandRsp{
+    optional RspHead rsp_head = 1; //回包包头
+}
+
+//地主确定通知 kLandLordSetLandLordNty 0x12006
+message SetLandLordNty{
+    optional uint32 current_score = 1;//当前叫分
+    optional string land_lord_seat_no = 2;//地主座位号
+    repeated CardInfo hidden_cards = 3;//底牌
+}
+
+//玩家出牌请求 kLandLordPlayCardReq 0x10007
+message PlayCardReq{
+    repeated CardInfo cards = 1;//自己出牌的牌型
+}
+
+//玩家出牌回包 kLandLordPlayCardRsp 0x10008
+message PlayCardRsp{
+    optional RspHead rsp_head = 1; //回包包头
+}
+
+//玩家出牌通知 kLandLordPlayCardNty 0x12008
+message PlayCardNty{
+    optional string pre_seat_no = 1;//前一位出牌玩家
+    optional string next_seat_no = 2;//下一位出牌玩家
+    optional uint32 rate = 3;//当前倍率
+    repeated CardInfo cards = 4;//前一位玩家出的牌
+}
+
+//游戏结束通知 kLandLordGameOverNty 0x1200A
+message GameOverNty{
+    optional string winner_seat_no = 1;//获胜者的座位号
+    optional string land_lord_seat_no = 2;//地主座位号 (服务器再传一次,其实可以不用)
+    optional string current_score = 3;//当前局叫地主时的分数
+    optional uint32 rate = 4;//当前局的倍率
+    repeated CardInfo cards = 5;//最后赢的牌
+    repeated PlayerInfo players = 6; //用户数组列表
+    //todo 下面可以传一些跟新的信息数据,比如等级(level),分数(score);当然也可以构造一个利益数据包(message)跟新
+}

@@ -1,0 +1,17 @@
+ syntax = "proto3";
+// 服务
+message RouteRequest{
+uint32 cmd  = 1;
+uint64 uid  = 2;
+uint32 seq  = 3;
+bytes options = 4;
+bytes bodyData = 5;
+}
+message RouteResponse{
+    uint32 status = 1;
+    string des = 2;
+}
+
+service RouteService{
+    rpc route (RouteRequest) returns (RouteResponse){}
+} 

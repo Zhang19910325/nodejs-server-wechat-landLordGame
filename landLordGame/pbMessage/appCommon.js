@@ -22,6 +22,7 @@ module.exports ={
                 "kLandLordSetLandLordNty": 73734,
                 "kLandLordPlayCardNty": 73736,
                 "kLandLordGameOverNty": 73738,
+                "kLandLordGameNoLordNty": 73740,
                 "kLandLordEnd": 131071
             }
         },

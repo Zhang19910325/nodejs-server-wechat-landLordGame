@@ -49,14 +49,19 @@ export default class landLordMain {
             self.clock2 = new ZMClass({x:screenWidth - 120, y:screenHeight/2},{width:20, height:20}).setBGImage(ZMResourceData.Images.clock);//右边的小闹钟
             self.clock3 = new ZMClass({x:120, y:screenHeight/2},{width:20, height:20}).setBGImage(ZMResourceData.Images.clock);//左边的小闹钟
 
-            self.pokerName1 = new ZMLabel({x:200,y:screenHeight - 25}, "自己的名字").setFontColor(ZMColor.red);//自己的名称
-            self.pokerName2 = new ZMLabel({x:screenWidth-120,y:10}, "右边的名称").setFontColor(ZMColor.red);//右边的名称
-            self.pokerName3 = new ZMLabel({x:5,y:10}, "左边的名称").setFontColor(ZMColor.red);//左边的名称
+            self.pokerName1 = new ZMLabel({x:200,y:screenHeight - 25}, "自己的名字").setFontColor(ZMColor.blue);//自己的名称
+            self.pokerName2 = new ZMLabel({x:screenWidth-120,y:10}, "右边的名称").setFontColor(ZMColor.blue);//右边的名称
+            self.pokerName3 = new ZMLabel({x:5,y:10}, "左边的名称").setFontColor(ZMColor.blue);//左边的名称
 
             //不要的文字提示
             self.statusLabel1 = new ZMLabel({x:screenWidth/2+30, y:screenHeight - 128}, "不要").setFontColor(ZMColor.white);//自己的
             self.statusLabel2 = new ZMLabel({x:screenWidth - 165, y:screenHeight/2}, "不要").setFontColor(ZMColor.white);//右边的
             self.statusLabel3 = new ZMLabel({x:60, y:screenHeight/2-30}, "不要").setFontColor(ZMColor.white);//左边的
+
+            //抢分的分子提示
+            self.landScoreLabel1 = new ZMLabel({x:screenWidth/2-50, y:screenHeight - 128}, "自己的叫分").setFontColor(ZMColor.white);//自己的
+            self.landScoreLabel2 = new ZMLabel({x:screenWidth - 165, y:screenHeight/2-40}, "右边的叫分").setFontColor(ZMColor.white);//右边的
+            self.landScoreLabel3 = new ZMLabel({x:60, y:screenHeight/2-70}, "左边的叫分").setFontColor(ZMColor.white);//左边的
 
             self.beginButton.onClick = self.onClickStartBtn.bind(self);
             self.btnPanel.addControlInLast([self.beginButton]);
@@ -64,12 +69,21 @@ export default class landLordMain {
             JMain.JForm.addControlInLast([self.pokerName1,self.pokerName2,self.pokerName3]);
             JMain.JForm.addControlInLast([self.clock1,self.clock2,self.clock3]);
             JMain.JForm.addControlInLast([self.statusLabel1,self.statusLabel2,self.statusLabel3]);
+            JMain.JForm.addControlInLast([self.landScoreLabel1,self.landScoreLabel2,self.landScoreLabel3]);
+
             //网络服务
             var netService = new  NetService(0x123456789A);
             netService.connect({
                 "url" : "wss://127.0.0.1:30000",
                 success : function(){
                     console.log("连接建立成功");
+                },
+                fail:function(){
+                    //
+                    console.log("请求链接失败");
+                },
+                complete:function(err){
+                    console.log("链接请求回来", err);
                 }
             });
             //发送握手协议
@@ -78,19 +92,38 @@ export default class landLordMain {
                 success: self.handleShakeCallback.bind(self)
             });
             JMain.netService = netService;
+
+            self.initGame();
+            //JMain.JForm.show();
+
+            self.aniId = window.requestAnimationFrame(
+                self.loop.bind(self),
+                canvas
+            );
         });
+    }
+    loop(){
+        var self = this;
+        window.cancelAnimationFrame(this.aniId);
+
+        JMain.JForm.show();
+        self.aniId = window.requestAnimationFrame(
+            self.loop.bind(self),
+            canvas
+        );
     }
     addListener(){
         var self = this;
         var netService = JMain.netService;
         netService.addListenerCmd(0x12002, "lanLordMain", this.handleStartGameNty.bind(self));
+        netService.addListenerCmd(0x12004, "lanLordMain", this.handleTobLandNty.bind(self));
         netService.addListenerCmd(0x12006, "lanLordMain", this.handleSetRobLandNty.bind(self));
         netService.addListenerCmd(0x12008, "lanLordMain", this.handlePlayCardNty.bind(self));
         netService.addListenerCmd(0x1200A, "lanLordMain", this.handleGameOverNty.bind(self));
+        netService.addListenerCmd(0x1200C, "lanLordMain", this.handleNoLordNty.bind(self));
     }
     handleShakeCallback(){//握手请求回包
         var self = this;
-        this.initGame();
         this.addListener();
         JMain.JForm.show();
         //发送进入游戏请求
@@ -132,13 +165,54 @@ export default class landLordMain {
         JMain.JForm.show();
 
     }
+    //玩家抢地主通知
+    handleTobLandNty(recvPacket){
+        this.btnPanel.clearControls();
+        var self = this;
+        var bodyData = recvPacket.bodyData;
+        var robLandInfoNty = appCommonRoot.lookupType("RobLandInfoNty").decode(bodyData);
+        var robLandInfoNtyObject = robLandInfoNty.toObject();
+
+        var preScore = robLandInfoNtyObject.preScore;
+        var preSeatNo = robLandInfoNtyObject.preSeatNo;
+        var text = !preScore ? "不叫" : preScore + "分";
+        var label;
+        if(preSeatNo == this.landLordGameInfo.preSeatNo){//上家
+            label = this.landScoreLabel2;
+        }else if( preSeatNo== this.landLordGameInfo.nextSeatNo){//下家
+            label = this.landScoreLabel3;
+        } else {//自己
+            label = this.landScoreLabel1;
+        }
+        label.setText(text);
+        label.visible = true;
+
+
+        this.landLordGameInfo.maxScore = robLandInfoNtyObject.currentScore;
+        this.landLordGameInfo.currentRobSeatNo = robLandInfoNtyObject.nextSeat;
+        //this.maxScore = robLandInfoNtyObject.currentScore;
+
+        console.log("robLandInfoNtyObject:",robLandInfoNtyObject);
+        this.toRobLord();
+    }
+    handleNoLordNty(recvPacket){
+        var self = this;
+        var text = "没人抢地主游戏结束";
+        var toast = new ZMToast({x:180, y:100},{width:300, height:200},{title:text});
+        toast.addBtnByTextAndClick("取消", self.reStartGameWithIsStart.bind(self, false));
+        toast.addBtnByTextAndClick("重新开始", self.reStartGameWithIsStart.bind(self, true));
+        JMain.JForm.addControlInLast([toast]);
+        JMain.JForm.show();
+    }
     handleStartGameNty(recvPacket){
         var self =this;
+        self.initGame();
         var bodyData = recvPacket.bodyData;
         var StartGameNtyMessage = appCommonRoot.lookupType("StartGameNty");
         var startGameNtyMessage = StartGameNtyMessage.decode(bodyData);
         var startGameNtyMessageObject = startGameNtyMessage.toObject();
         var cards = startGameNtyMessageObject["cards"];
+        this.landLordGameInfo.currentRobSeatNo = startGameNtyMessageObject["firstRob"];
         self.dealingPoker(cards);
     }
     handleGameOverNty(recvPacket){
@@ -243,7 +317,10 @@ export default class landLordMain {
         this.clock2.visible = false;
         this.clock3.visible = false;
 
+
+
         this.hiddenStatusLabels();
+        this.hiddenLandScoreLabel();
 
         this.landLordGameInfo.reset();
 
@@ -254,6 +331,11 @@ export default class landLordMain {
         this.statusLabel1.visible = false;
         this.statusLabel2.visible = false;
         this.statusLabel3.visible = false;
+    }
+    hiddenLandScoreLabel(){
+        this.landScoreLabel1.visible = false;
+        this.landScoreLabel2.visible = false;
+        this.landScoreLabel3.visible = false;
     }
     onClickStartBtn(){
         this.btnPanel.visible = false;
@@ -283,7 +365,11 @@ export default class landLordMain {
         if(this.poker[0].length > 3){//发到还剩3张就可以了
             this.dealingHandle = setTimeout(this.dealingPoker.bind(this, cards), 40);//40毫秒发一张牌
         }else {
-            this.robLandLord();
+            //这里判断是不是自己叫地主
+            //if(this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.seatNo){
+            //    this.robLandLord();
+            //}
+            this.toRobLord();
         }
     }
     robLandLord(){
@@ -351,6 +437,7 @@ export default class landLordMain {
     }
 
     handleSetRobLandNty(recvPacket){//网络回调确定地主通知
+        //this.hiddenLandScoreLabel();
         var bodyData = recvPacket.bodyData;
         var setRobLandNty = appCommonRoot.lookupType("SetLandLordNty").decode(bodyData);
         var setRobLandNtyObject = setRobLandNty.toObject();
@@ -427,7 +514,8 @@ export default class landLordMain {
     //开始进入出牌阶段
     toPlay(){
         this.btnPanel.clearControls();
-        this.clock1.visible = this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.seatNo;
+        //this.clock1.visible = this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.seatNo;
+        this.clock1.visible = false;
         this.clock2.visible = this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.preSeatNo;
         this.clock3.visible = this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.nextSeatNo;
 
@@ -455,6 +543,20 @@ export default class landLordMain {
         }
         this.landLordGameInfo.lastDealSeatNo = this.landLordGameInfo.currentDealSeatNo;
         JMain.JForm.show();
+    }
+    //开始进入叫地主阶段
+    toRobLord(){
+        this.clock1.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.seatNo;
+        this.clock2.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.preSeatNo;
+        this.clock3.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.nextSeatNo;
+        if (this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.preSeatNo){//上家叫
+            this.btnPanel.visible = false;
+        }else if(this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.nextSeatNo){//下家叫
+            this.btnPanel.visible = false;
+        }else{//自己叫
+            this.robLandLord();
+        }
+
     }
     onClickPlayBtn(btn){
         var self = this;

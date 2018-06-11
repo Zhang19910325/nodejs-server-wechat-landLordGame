@@ -14,6 +14,7 @@ export default class LandLordGameInfo{
     nextSeatNo = null;//下一位座位号
     currentDealSeatNo = null;//当前操作座位号
     lastDealSeatNo = null;//本回合上一位操作者座位号，
+    currentRobSeatNo = null;//当前叫地主座位号
     players = null;
 
     reset(){
@@ -26,6 +27,7 @@ export default class LandLordGameInfo{
         //this.nextSeatNo = null;//下一位座位号
         this.currentDealSeatNo = null;//当前操作座位号
         this.lastDealSeatNo = null;//本回合上一位操作者座位号，
+        this.currentRobSeatNo = null;//当前叫地主座位号
         //this.players = null;
     }
 }

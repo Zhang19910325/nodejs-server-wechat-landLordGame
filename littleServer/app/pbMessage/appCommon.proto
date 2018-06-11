@@ -15,7 +15,7 @@ enum Cmd {
 
     kLandLordDeskUpdateNty = 0x12000; //斗地主桌子信息更新
     kLandLordStartGameNty = 0x12002; //游戏开始通知
-    kLandLordRobLandNty = 0x12004;//玩家抢地主通知 未实现
+    kLandLordRobLandNty = 0x12004;//玩家抢地主通知 todo 未实现
     kLandLordSetLandLordNty = 0x12006;//玩家地主确定通知
     kLandLordPlayCardNty = 0x12008;//玩家出牌通知
     kLandLordGameOverNty = 0x1200A;//游戏结束通知
@@ -105,6 +105,13 @@ message RobLandReq{
 //抢地主回包 kLandLordRobLandRsp 0x10006
 message RobLandRsp{
     optional RspHead rsp_head = 1; //回包包头
+}
+
+message RobLandInfoNty{
+    optional string pre_seat_no = 1;//前一位叫份玩家座位
+    optional uint32 pre_score = 2;//前一位玩家叫的分
+    optional uint32 current_score = 3;//当前桌子最高的分
+    optional string next_seat = 4; //下一位叫地主的座位号
 }
 
 //地主确定通知 kLandLordSetLandLordNty 0x12006

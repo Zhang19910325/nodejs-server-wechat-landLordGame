@@ -166,6 +166,26 @@ module.exports ={
                 }
             }
         },
+        "RobLandInfoNty": {
+            "fields": {
+                "preSeatNo": {
+                    "type": "string",
+                    "id": 1
+                },
+                "preScore": {
+                    "type": "uint32",
+                    "id": 2
+                },
+                "currentScore": {
+                    "type": "uint32",
+                    "id": 3
+                },
+                "nextSeat": {
+                    "type": "string",
+                    "id": 4
+                }
+            }
+        },
         "SetLandLordNty": {
             "fields": {
                 "currentScore": {

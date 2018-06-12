@@ -74,7 +74,7 @@ export default class landLordMain {
             //网络服务
             var netService = new  NetService(0x123456789A);
             netService.connect({
-                "url" : "wss://127.0.0.1:30000",
+                "url" : "ws://127.0.0.1:30000",
                 success : function(){
                     console.log("连接建立成功");
                 },

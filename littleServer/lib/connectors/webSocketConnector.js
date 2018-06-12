@@ -34,12 +34,16 @@ Connector.prototype.start = function(cb){
     };
 
     //console.log("this.port:",this.port);
-    var server = https.createServer(this.getServerOptions(), function(req, res){
-        res.writeHead(403);
-        res.end("This is a webSocket server!\n");
-    }).listen(this.port);
+    //var server = https.createServer(this.getServerOptions(), function(req, res){
+    //    res.writeHead(403);
+    //    res.end("This is a webSocket server!\n");
+    //}).listen(this.port);
+    //this.wss = new ws.Server({
+    //    server : server
+    //});
+
     this.wss = new ws.Server({
-        server : server
+        port : this.port
     });
 
     this.wss.on('connection', function(wsConnect){

@@ -4,7 +4,7 @@
 
 var path = require('path');
 var pathUtil = module.exports;
-var Constants = require("./Constants");
+var Constants = require("./constants");
 var fs = require('fs');
 
 

@@ -4,7 +4,7 @@
 
 var Constants = require("../util/constants");
 var utils = require("../util/utils");
-var SimpleTcpServer = require("../socket/SimpleTcpServer");
+var SimpleTcpServer = require("../socket/simpleTcpServer");
 var RecvPacket = require("../common/model/recvPacket");
 
 var util = require("util");

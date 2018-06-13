@@ -2,7 +2,7 @@
  * Created by zhangmiao on 2018/6/5.
  */
 
-var GameRule = require("./GameRule");
+var GameRule = require("./gameRule");
 var AICardType = require("../model/aICardType");
 
 

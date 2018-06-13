@@ -2,7 +2,7 @@
  * Created by zhangmiao on 2018/5/24.
  */
 
-var BaseProcessor = require("../../../common/processService/BaseProcessor.js").BaseProcessor;
+var BaseProcessor = require("../../../common/processService/baseProcessor.js").BaseProcessor;
 var AppCommonPb = require("../../../pbMessage/appCommon_pb");
 var util = require("util");
 var Long = require("long");

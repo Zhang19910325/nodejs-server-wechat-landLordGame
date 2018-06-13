@@ -4,7 +4,7 @@
 
 var AppCommonPb = require("../../../pbMessage/appCommon_pb");
 var DeskManager = require("../manager/deskManager"); //桌子管理
-var AIPlayerManager = require("../manager/aiPlayerManager"); // AI 机器人管理
+var AIPlayerManager = require("../manager/aIPlayerManager"); // AI 机器人管理
 var PlayerManager = require("../manager/playerManager");// 真实用户玩家管理
 var CardManager = require("../manager/cardManager"); // 牌管理
 var GameRule = require("../util/gameRule");

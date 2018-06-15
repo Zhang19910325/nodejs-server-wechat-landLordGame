@@ -1,7 +1,8 @@
 /**
  * Created by zhangmiao on 2018/6/4.
  */
-module.exports ={
+module.exports =
+{
     "nested": {
         "Cmd": {
             "values": {
@@ -16,6 +17,7 @@ module.exports ={
                 "kLandLordRobLandRsp": 65542,
                 "kLandLordPlayCardReq": 65543,
                 "kLandLordPlayCardRsp": 65544,
+                "kLandLordReqCurDeskInfo": 65545,
                 "kLandLordDeskUpdateNty": 73728,
                 "kLandLordStartGameNty": 73730,
                 "kLandLordRobLandNty": 73732,
@@ -23,13 +25,16 @@ module.exports ={
                 "kLandLordPlayCardNty": 73736,
                 "kLandLordGameOverNty": 73738,
                 "kLandLordGameNoLordNty": 73740,
+                "kLandLordInitDeskNty": 73742,
                 "kLandLordEnd": 131071
             }
         },
         "ErrCode": {
             "values": {
                 "kLandLordScoreErr": 65537,
-                "kLandLordPlayCardErr": 65538
+                "kLandLordPlayCardErr": 65538,
+                "kLandLordUserNotJoin": 65539,
+                "kLandLordUserExits": 65540
             }
         },
         "RspHead": {
@@ -64,6 +69,14 @@ module.exports ={
         "S2CHandshakeRsp": {
             "fields": {}
         },
+        "S2CCommonRsp": {
+            "fields": {
+                "rspHead": {
+                    "type": "RspHead",
+                    "id": 1
+                }
+            }
+        },
         "JoinGameRsp": {
             "fields": {
                 "rspHead": {
@@ -82,6 +95,79 @@ module.exports ={
                     "rule": "repeated",
                     "type": "PlayerInfo",
                     "id": 4
+                }
+            }
+        },
+        "DeskInitInfo": {
+            "fields": {
+                "deskNo": {
+                    "type": "string",
+                    "id": 1
+                },
+                "seatNo": {
+                    "type": "string",
+                    "id": 2
+                },
+                "players": {
+                    "rule": "repeated",
+                    "type": "PlayerInfo",
+                    "id": 3
+                },
+                "preSeatNo": {
+                    "type": "string",
+                    "id": 4
+                },
+                "nextSeatNo": {
+                    "type": "string",
+                    "id": 5
+                },
+                "curDeskStatus": {
+                    "type": "uint32",
+                    "id": 6
+                },
+                "curRobSeatNo": {
+                    "type": "string",
+                    "id": 7
+                },
+                "robList": {
+                    "rule": "repeated",
+                    "type": "string",
+                    "id": 8
+                },
+                "landLordSeatNo": {
+                    "type": "string",
+                    "id": 9
+                },
+                "roundWinSeatNo": {
+                    "type": "string",
+                    "id": 10
+                },
+                "nextPlayCardSeat": {
+                    "type": "string",
+                    "id": 11
+                },
+                "deskRate": {
+                    "type": "uint32",
+                    "id": 12
+                },
+                "cards": {
+                    "rule": "repeated",
+                    "type": "CardInfo",
+                    "id": 13
+                },
+                "hiddenCards": {
+                    "rule": "repeated",
+                    "type": "CardInfo",
+                    "id": 14
+                },
+                "winCards": {
+                    "rule": "repeated",
+                    "type": "CardInfo",
+                    "id": 15
+                },
+                "isAudience": {
+                    "type": "bool",
+                    "id": 16
                 }
             }
         },
@@ -119,10 +205,13 @@ module.exports ={
                     "type": "uint32",
                     "id": 8
                 },
-                "cards": {
-                    "rule": "repeated",
-                    "type": "CardInfo",
+                "cardCount": {
+                    "type": "uint32",
                     "id": 9
+                },
+                "robLandScore": {
+                    "type": "uint32",
+                    "id": 10
                 }
             }
         },

@@ -23,6 +23,7 @@ var Player = function(name, session, uid){
     this.score = 0;//积分
     this.isLandLord = false;//是否是地主
     this.status = AppCommon.PlayerStatus.NORMAL;//状态
+    this.robLandScore = 0; //叫地主的分
     this.nextCardsCnt = 0; //下一位玩家的手牌数
     this.preCardsCnt  = 0; //上一位玩家的手牌数
 
@@ -75,9 +76,10 @@ Player.prototype.getPlayerInfoPb = function(){
     playerInfo.setDeskNo(this.deskNo);
     playerInfo.setSeatNo(this.seatNo);
     playerInfo.setScore(this.score);
+    playerInfo.setRobLandScore(this.robLandScore);
     playerInfo.setPreSeatNo(this.preSeatNo);
     playerInfo.setNextSeatNo(this.nextSeatNo);
-
+    playerInfo.setCardCount(this.cardList.length);
     return playerInfo;
 };
 
@@ -92,6 +94,19 @@ Player.prototype.getCardInfoPbList = function(){
         arr.push(cardPb);
     }
     return arr;
+};
+
+/**
+ * 向这个人发送消息
+ * @param cmd 发送命令值
+ * @param seq 发送消息的序列号
+ * @param data 发送的数据
+ */
+Player.prototype.send = function(cmd, seq, data){
+    if(this.isAI || !this.session) return;
+    var session = this.session;
+    var sendPacket = session.SendPacket.create(this.uid, cmd, seq, data);
+    session.send(sendPacket.msg, function(){});
 };
 
 

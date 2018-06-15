@@ -14,6 +14,7 @@ var global = Function('return this')();
 goog.exportSymbol('proto.C2SHandshakeReq', null, global);
 goog.exportSymbol('proto.CardInfo', null, global);
 goog.exportSymbol('proto.Cmd', null, global);
+goog.exportSymbol('proto.DeskInitInfo', null, global);
 goog.exportSymbol('proto.DeskStatus', null, global);
 goog.exportSymbol('proto.ErrCode', null, global);
 goog.exportSymbol('proto.GameOverNty', null, global);
@@ -27,6 +28,7 @@ goog.exportSymbol('proto.RobLandInfoNty', null, global);
 goog.exportSymbol('proto.RobLandReq', null, global);
 goog.exportSymbol('proto.RobLandRsp', null, global);
 goog.exportSymbol('proto.RspHead', null, global);
+goog.exportSymbol('proto.S2CCommonRsp', null, global);
 goog.exportSymbol('proto.S2CHandshakeRsp', null, global);
 goog.exportSymbol('proto.SetLandLordNty', null, global);
 goog.exportSymbol('proto.StartGameNty', null, global);
@@ -470,6 +472,165 @@ proto.S2CHandshakeRsp.serializeBinaryToWriter = function(message, writer) {
  * @extends {jspb.Message}
  * @constructor
  */
+proto.S2CCommonRsp = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.S2CCommonRsp, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.S2CCommonRsp.displayName = 'proto.S2CCommonRsp';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.S2CCommonRsp.prototype.toObject = function(opt_includeInstance) {
+  return proto.S2CCommonRsp.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.S2CCommonRsp} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.S2CCommonRsp.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    rspHead: (f = msg.getRspHead()) && proto.RspHead.toObject(includeInstance, f)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.S2CCommonRsp}
+ */
+proto.S2CCommonRsp.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.S2CCommonRsp;
+  return proto.S2CCommonRsp.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.S2CCommonRsp} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.S2CCommonRsp}
+ */
+proto.S2CCommonRsp.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.RspHead;
+      reader.readMessage(value,proto.RspHead.deserializeBinaryFromReader);
+      msg.setRspHead(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.S2CCommonRsp.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.S2CCommonRsp.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.S2CCommonRsp} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.S2CCommonRsp.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getRspHead();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      proto.RspHead.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * optional RspHead rsp_head = 1;
+ * @return {?proto.RspHead}
+ */
+proto.S2CCommonRsp.prototype.getRspHead = function() {
+  return /** @type{?proto.RspHead} */ (
+    jspb.Message.getWrapperField(this, proto.RspHead, 1));
+};
+
+
+/** @param {?proto.RspHead|undefined} value */
+proto.S2CCommonRsp.prototype.setRspHead = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.S2CCommonRsp.prototype.clearRspHead = function() {
+  this.setRspHead(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.S2CCommonRsp.prototype.hasRspHead = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.JoinGameRsp = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, proto.JoinGameRsp.repeatedFields_, null);
 };
@@ -764,20 +925,813 @@ proto.JoinGameRsp.prototype.clearPlayersList = function() {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.PlayerInfo = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.PlayerInfo.repeatedFields_, null);
+proto.DeskInitInfo = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.DeskInitInfo.repeatedFields_, null);
 };
-goog.inherits(proto.PlayerInfo, jspb.Message);
+goog.inherits(proto.DeskInitInfo, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.PlayerInfo.displayName = 'proto.PlayerInfo';
+  proto.DeskInitInfo.displayName = 'proto.DeskInitInfo';
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.PlayerInfo.repeatedFields_ = [9];
+proto.DeskInitInfo.repeatedFields_ = [3,8,13,14,15];
 
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.DeskInitInfo.prototype.toObject = function(opt_includeInstance) {
+  return proto.DeskInitInfo.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.DeskInitInfo} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.DeskInitInfo.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    deskNo: jspb.Message.getField(msg, 1),
+    seatNo: jspb.Message.getField(msg, 2),
+    playersList: jspb.Message.toObjectList(msg.getPlayersList(),
+    proto.PlayerInfo.toObject, includeInstance),
+    preSeatNo: jspb.Message.getField(msg, 4),
+    nextSeatNo: jspb.Message.getField(msg, 5),
+    curDeskStatus: jspb.Message.getField(msg, 6),
+    curRobSeatNo: jspb.Message.getField(msg, 7),
+    robListList: jspb.Message.getRepeatedField(msg, 8),
+    landLordSeatNo: jspb.Message.getField(msg, 9),
+    roundWinSeatNo: jspb.Message.getField(msg, 10),
+    nextPlayCardSeat: jspb.Message.getField(msg, 11),
+    deskRate: jspb.Message.getField(msg, 12),
+    cardsList: jspb.Message.toObjectList(msg.getCardsList(),
+    proto.CardInfo.toObject, includeInstance),
+    hiddenCardsList: jspb.Message.toObjectList(msg.getHiddenCardsList(),
+    proto.CardInfo.toObject, includeInstance),
+    winCardsList: jspb.Message.toObjectList(msg.getWinCardsList(),
+    proto.CardInfo.toObject, includeInstance),
+    isAudience: jspb.Message.getField(msg, 16)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.DeskInitInfo}
+ */
+proto.DeskInitInfo.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.DeskInitInfo;
+  return proto.DeskInitInfo.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.DeskInitInfo} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.DeskInitInfo}
+ */
+proto.DeskInitInfo.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setDeskNo(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSeatNo(value);
+      break;
+    case 3:
+      var value = new proto.PlayerInfo;
+      reader.readMessage(value,proto.PlayerInfo.deserializeBinaryFromReader);
+      msg.addPlayers(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPreSeatNo(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNextSeatNo(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setCurDeskStatus(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCurRobSeatNo(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addRobList(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setLandLordSeatNo(value);
+      break;
+    case 10:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRoundWinSeatNo(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNextPlayCardSeat(value);
+      break;
+    case 12:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setDeskRate(value);
+      break;
+    case 13:
+      var value = new proto.CardInfo;
+      reader.readMessage(value,proto.CardInfo.deserializeBinaryFromReader);
+      msg.addCards(value);
+      break;
+    case 14:
+      var value = new proto.CardInfo;
+      reader.readMessage(value,proto.CardInfo.deserializeBinaryFromReader);
+      msg.addHiddenCards(value);
+      break;
+    case 15:
+      var value = new proto.CardInfo;
+      reader.readMessage(value,proto.CardInfo.deserializeBinaryFromReader);
+      msg.addWinCards(value);
+      break;
+    case 16:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIsAudience(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.DeskInitInfo.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.DeskInitInfo.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.DeskInitInfo} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.DeskInitInfo.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = /** @type {string} */ (jspb.Message.getField(message, 1));
+  if (f != null) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getPlayersList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      3,
+      f,
+      proto.PlayerInfo.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
+    writer.writeUint32(
+      6,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 7));
+  if (f != null) {
+    writer.writeString(
+      7,
+      f
+    );
+  }
+  f = message.getRobListList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      8,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 9));
+  if (f != null) {
+    writer.writeString(
+      9,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 10));
+  if (f != null) {
+    writer.writeString(
+      10,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 11));
+  if (f != null) {
+    writer.writeString(
+      11,
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 12));
+  if (f != null) {
+    writer.writeUint32(
+      12,
+      f
+    );
+  }
+  f = message.getCardsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      13,
+      f,
+      proto.CardInfo.serializeBinaryToWriter
+    );
+  }
+  f = message.getHiddenCardsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      14,
+      f,
+      proto.CardInfo.serializeBinaryToWriter
+    );
+  }
+  f = message.getWinCardsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      15,
+      f,
+      proto.CardInfo.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 16));
+  if (f != null) {
+    writer.writeBool(
+      16,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string desk_no = 1;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getDeskNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setDeskNo = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearDeskNo = function() {
+  jspb.Message.setField(this, 1, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasDeskNo = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional string seat_no = 2;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setSeatNo = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearSeatNo = function() {
+  jspb.Message.setField(this, 2, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasSeatNo = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * repeated PlayerInfo players = 3;
+ * @return {!Array.<!proto.PlayerInfo>}
+ */
+proto.DeskInitInfo.prototype.getPlayersList = function() {
+  return /** @type{!Array.<!proto.PlayerInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.PlayerInfo, 3));
+};
+
+
+/** @param {!Array.<!proto.PlayerInfo>} value */
+proto.DeskInitInfo.prototype.setPlayersList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+/**
+ * @param {!proto.PlayerInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.PlayerInfo}
+ */
+proto.DeskInitInfo.prototype.addPlayers = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 3, opt_value, proto.PlayerInfo, opt_index);
+};
+
+
+proto.DeskInitInfo.prototype.clearPlayersList = function() {
+  this.setPlayersList([]);
+};
+
+
+/**
+ * optional string pre_seat_no = 4;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getPreSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setPreSeatNo = function(value) {
+  jspb.Message.setField(this, 4, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearPreSeatNo = function() {
+  jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasPreSeatNo = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional string next_seat_no = 5;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getNextSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setNextSeatNo = function(value) {
+  jspb.Message.setField(this, 5, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearNextSeatNo = function() {
+  jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasNextSeatNo = function() {
+  return jspb.Message.getField(this, 5) != null;
+};
+
+
+/**
+ * optional uint32 cur_desk_status = 6;
+ * @return {number}
+ */
+proto.DeskInitInfo.prototype.getCurDeskStatus = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/** @param {number} value */
+proto.DeskInitInfo.prototype.setCurDeskStatus = function(value) {
+  jspb.Message.setField(this, 6, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearCurDeskStatus = function() {
+  jspb.Message.setField(this, 6, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasCurDeskStatus = function() {
+  return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional string cur_rob_seat_no = 7;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getCurRobSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setCurRobSeatNo = function(value) {
+  jspb.Message.setField(this, 7, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearCurRobSeatNo = function() {
+  jspb.Message.setField(this, 7, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasCurRobSeatNo = function() {
+  return jspb.Message.getField(this, 7) != null;
+};
+
+
+/**
+ * repeated string rob_list = 8;
+ * @return {!Array.<string>}
+ */
+proto.DeskInitInfo.prototype.getRobListList = function() {
+  return /** @type {!Array.<string>} */ (jspb.Message.getRepeatedField(this, 8));
+};
+
+
+/** @param {!Array.<string>} value */
+proto.DeskInitInfo.prototype.setRobListList = function(value) {
+  jspb.Message.setField(this, 8, value || []);
+};
+
+
+/**
+ * @param {!string} value
+ * @param {number=} opt_index
+ */
+proto.DeskInitInfo.prototype.addRobList = function(value, opt_index) {
+  jspb.Message.addToRepeatedField(this, 8, value, opt_index);
+};
+
+
+proto.DeskInitInfo.prototype.clearRobListList = function() {
+  this.setRobListList([]);
+};
+
+
+/**
+ * optional string land_lord_seat_no = 9;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getLandLordSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setLandLordSeatNo = function(value) {
+  jspb.Message.setField(this, 9, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearLandLordSeatNo = function() {
+  jspb.Message.setField(this, 9, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasLandLordSeatNo = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional string round_win_seat_no = 10;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getRoundWinSeatNo = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setRoundWinSeatNo = function(value) {
+  jspb.Message.setField(this, 10, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearRoundWinSeatNo = function() {
+  jspb.Message.setField(this, 10, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasRoundWinSeatNo = function() {
+  return jspb.Message.getField(this, 10) != null;
+};
+
+
+/**
+ * optional string next_play_card_seat = 11;
+ * @return {string}
+ */
+proto.DeskInitInfo.prototype.getNextPlayCardSeat = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/** @param {string} value */
+proto.DeskInitInfo.prototype.setNextPlayCardSeat = function(value) {
+  jspb.Message.setField(this, 11, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearNextPlayCardSeat = function() {
+  jspb.Message.setField(this, 11, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasNextPlayCardSeat = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional uint32 desk_rate = 12;
+ * @return {number}
+ */
+proto.DeskInitInfo.prototype.getDeskRate = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
+};
+
+
+/** @param {number} value */
+proto.DeskInitInfo.prototype.setDeskRate = function(value) {
+  jspb.Message.setField(this, 12, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearDeskRate = function() {
+  jspb.Message.setField(this, 12, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasDeskRate = function() {
+  return jspb.Message.getField(this, 12) != null;
+};
+
+
+/**
+ * repeated CardInfo cards = 13;
+ * @return {!Array.<!proto.CardInfo>}
+ */
+proto.DeskInitInfo.prototype.getCardsList = function() {
+  return /** @type{!Array.<!proto.CardInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.CardInfo, 13));
+};
+
+
+/** @param {!Array.<!proto.CardInfo>} value */
+proto.DeskInitInfo.prototype.setCardsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 13, value);
+};
+
+
+/**
+ * @param {!proto.CardInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.CardInfo}
+ */
+proto.DeskInitInfo.prototype.addCards = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 13, opt_value, proto.CardInfo, opt_index);
+};
+
+
+proto.DeskInitInfo.prototype.clearCardsList = function() {
+  this.setCardsList([]);
+};
+
+
+/**
+ * repeated CardInfo hidden_cards = 14;
+ * @return {!Array.<!proto.CardInfo>}
+ */
+proto.DeskInitInfo.prototype.getHiddenCardsList = function() {
+  return /** @type{!Array.<!proto.CardInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.CardInfo, 14));
+};
+
+
+/** @param {!Array.<!proto.CardInfo>} value */
+proto.DeskInitInfo.prototype.setHiddenCardsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 14, value);
+};
+
+
+/**
+ * @param {!proto.CardInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.CardInfo}
+ */
+proto.DeskInitInfo.prototype.addHiddenCards = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 14, opt_value, proto.CardInfo, opt_index);
+};
+
+
+proto.DeskInitInfo.prototype.clearHiddenCardsList = function() {
+  this.setHiddenCardsList([]);
+};
+
+
+/**
+ * repeated CardInfo win_cards = 15;
+ * @return {!Array.<!proto.CardInfo>}
+ */
+proto.DeskInitInfo.prototype.getWinCardsList = function() {
+  return /** @type{!Array.<!proto.CardInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.CardInfo, 15));
+};
+
+
+/** @param {!Array.<!proto.CardInfo>} value */
+proto.DeskInitInfo.prototype.setWinCardsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 15, value);
+};
+
+
+/**
+ * @param {!proto.CardInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.CardInfo}
+ */
+proto.DeskInitInfo.prototype.addWinCards = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 15, opt_value, proto.CardInfo, opt_index);
+};
+
+
+proto.DeskInitInfo.prototype.clearWinCardsList = function() {
+  this.setWinCardsList([]);
+};
+
+
+/**
+ * optional bool is_audience = 16;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.DeskInitInfo.prototype.getIsAudience = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 16, false));
+};
+
+
+/** @param {boolean} value */
+proto.DeskInitInfo.prototype.setIsAudience = function(value) {
+  jspb.Message.setField(this, 16, value);
+};
+
+
+proto.DeskInitInfo.prototype.clearIsAudience = function() {
+  jspb.Message.setField(this, 16, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.DeskInitInfo.prototype.hasIsAudience = function() {
+  return jspb.Message.getField(this, 16) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.PlayerInfo = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.PlayerInfo, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.PlayerInfo.displayName = 'proto.PlayerInfo';
+}
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -815,8 +1769,8 @@ proto.PlayerInfo.toObject = function(includeInstance, msg) {
     preSeatNo: jspb.Message.getField(msg, 6),
     nextSeatNo: jspb.Message.getField(msg, 7),
     score: jspb.Message.getField(msg, 8),
-    cardsList: jspb.Message.toObjectList(msg.getCardsList(),
-    proto.CardInfo.toObject, includeInstance)
+    cardCount: jspb.Message.getField(msg, 9),
+    robLandScore: jspb.Message.getField(msg, 10)
   };
 
   if (includeInstance) {
@@ -886,9 +1840,12 @@ proto.PlayerInfo.deserializeBinaryFromReader = function(msg, reader) {
       msg.setScore(value);
       break;
     case 9:
-      var value = new proto.CardInfo;
-      reader.readMessage(value,proto.CardInfo.deserializeBinaryFromReader);
-      msg.addCards(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setCardCount(value);
+      break;
+    case 10:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setRobLandScore(value);
       break;
     default:
       reader.skipField();
@@ -975,12 +1932,18 @@ proto.PlayerInfo.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getCardsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
+  f = /** @type {number} */ (jspb.Message.getField(message, 9));
+  if (f != null) {
+    writer.writeUint32(
       9,
-      f,
-      proto.CardInfo.serializeBinaryToWriter
+      f
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 10));
+  if (f != null) {
+    writer.writeUint32(
+      10,
+      f
     );
   }
 };
@@ -1221,33 +2184,60 @@ proto.PlayerInfo.prototype.hasScore = function() {
 
 
 /**
- * repeated CardInfo cards = 9;
- * @return {!Array.<!proto.CardInfo>}
+ * optional uint32 card_count = 9;
+ * @return {number}
  */
-proto.PlayerInfo.prototype.getCardsList = function() {
-  return /** @type{!Array.<!proto.CardInfo>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.CardInfo, 9));
+proto.PlayerInfo.prototype.getCardCount = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
-/** @param {!Array.<!proto.CardInfo>} value */
-proto.PlayerInfo.prototype.setCardsList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 9, value);
+/** @param {number} value */
+proto.PlayerInfo.prototype.setCardCount = function(value) {
+  jspb.Message.setField(this, 9, value);
+};
+
+
+proto.PlayerInfo.prototype.clearCardCount = function() {
+  jspb.Message.setField(this, 9, undefined);
 };
 
 
 /**
- * @param {!proto.CardInfo=} opt_value
- * @param {number=} opt_index
- * @return {!proto.CardInfo}
+ * Returns whether this field is set.
+ * @return {!boolean}
  */
-proto.PlayerInfo.prototype.addCards = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 9, opt_value, proto.CardInfo, opt_index);
+proto.PlayerInfo.prototype.hasCardCount = function() {
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
-proto.PlayerInfo.prototype.clearCardsList = function() {
-  this.setCardsList([]);
+/**
+ * optional uint32 rob_land_score = 10;
+ * @return {number}
+ */
+proto.PlayerInfo.prototype.getRobLandScore = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
+};
+
+
+/** @param {number} value */
+proto.PlayerInfo.prototype.setRobLandScore = function(value) {
+  jspb.Message.setField(this, 10, value);
+};
+
+
+proto.PlayerInfo.prototype.clearRobLandScore = function() {
+  jspb.Message.setField(this, 10, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.PlayerInfo.prototype.hasRobLandScore = function() {
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
@@ -1305,7 +2295,7 @@ proto.StartGameNty.prototype.toObject = function(opt_includeInstance) {
  */
 proto.StartGameNty.toObject = function(includeInstance, msg) {
   var f, obj = {
-    firstrob: jspb.Message.getField(msg, 1),
+    firstRob: jspb.Message.getField(msg, 1),
     cardsList: jspb.Message.toObjectList(msg.getCardsList(),
     proto.CardInfo.toObject, includeInstance)
   };
@@ -1346,7 +2336,7 @@ proto.StartGameNty.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFirstrob(value);
+      msg.setFirstRob(value);
       break;
     case 2:
       var value = new proto.CardInfo;
@@ -1401,21 +2391,21 @@ proto.StartGameNty.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional string firstRob = 1;
+ * optional string first_rob = 1;
  * @return {string}
  */
-proto.StartGameNty.prototype.getFirstrob = function() {
+proto.StartGameNty.prototype.getFirstRob = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.StartGameNty.prototype.setFirstrob = function(value) {
+proto.StartGameNty.prototype.setFirstRob = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
 
-proto.StartGameNty.prototype.clearFirstrob = function() {
+proto.StartGameNty.prototype.clearFirstRob = function() {
   jspb.Message.setField(this, 1, undefined);
 };
 
@@ -1424,7 +2414,7 @@ proto.StartGameNty.prototype.clearFirstrob = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.StartGameNty.prototype.hasFirstrob = function() {
+proto.StartGameNty.prototype.hasFirstRob = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -3512,6 +4502,7 @@ proto.Cmd = {
   KLANDLORDROBLANDRSP: 65542,
   KLANDLORDPLAYCARDREQ: 65543,
   KLANDLORDPLAYCARDRSP: 65544,
+  KLANDLORDREQCURDESKINFO: 65545,
   KLANDLORDDESKUPDATENTY: 73728,
   KLANDLORDSTARTGAMENTY: 73730,
   KLANDLORDROBLANDNTY: 73732,
@@ -3519,6 +4510,7 @@ proto.Cmd = {
   KLANDLORDPLAYCARDNTY: 73736,
   KLANDLORDGAMEOVERNTY: 73738,
   KLANDLORDGAMENOLORDNTY: 73740,
+  KLANDLORDINITDESKNTY: 73742,
   KLANDLORDEND: 131071
 };
 
@@ -3527,7 +4519,9 @@ proto.Cmd = {
  */
 proto.ErrCode = {
   KLANDLORDSCOREERR: 65537,
-  KLANDLORDPLAYCARDERR: 65538
+  KLANDLORDPLAYCARDERR: 65538,
+  KLANDLORDUSERNOTJOIN: 65539,
+  KLANDLORDUSEREXITS: 65540
 };
 
 /**

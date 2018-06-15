@@ -12,6 +12,7 @@ enum Cmd {
     kLandLordRobLandRsp = 0x10006; //抢地主 回报
     kLandLordPlayCardReq = 0x10007; //出牌请求
     kLandLordPlayCardRsp = 0x10008; //出牌回包
+    kLandLordReqCurDeskInfo = 0x10009; //请求发送桌子信息,此命令会触发kLandLordInitDeskNty 0x1200E 通知消息
 
     kLandLordDeskUpdateNty = 0x12000; //斗地主桌子信息更新
     kLandLordStartGameNty = 0x12002; //游戏开始通知
@@ -20,6 +21,7 @@ enum Cmd {
     kLandLordPlayCardNty = 0x12008;//玩家出牌通知
     kLandLordGameOverNty = 0x1200A;//游戏结束通知
     kLandLordGameNoLordNty = 0x1200C;//因没人抢地主而结束的游戏通知
+    kLandLordInitDeskNty = 0x1200E;//初始化桌子的信息(一般用于断网重连,此信息包含较大)
     kLandLordEnd = 0x1ffff;//斗地主 命令值 结束点
 }
 
@@ -27,6 +29,8 @@ enum Cmd {
 enum ErrCode {
     kLandLordScoreErr = 0x10001;//抢地主分数错误
     kLandLordPlayCardErr = 0x10002;//出牌牌型错误
+    kLandLordUserNotJoin = 0x10003;//用户未加入游戏错误,在当前环境下未找到用户,需要重新加入游戏
+    kLandLordUserExits = 0x10004;//用户已存在,拉取桌子信息
 }
 
 //公共包头
@@ -61,15 +65,44 @@ message S2CHandshakeRsp
 {
 }
 
+message S2CCommonRsp{
+    optional RspHead rsp_head = 1; //请求包头,返回的公共包头,返回包都要以此为基准
+}
+
 //kLandLordJoinGameRsp 0x10002
 message JoinGameRsp{
     optional RspHead rsp_head = 1; //请求包头
     optional string desk_no = 2; //自己进入游戏后的桌子号
     optional string seat_no = 3; //自己进入游戏后的座位号
     repeated PlayerInfo players = 4; //用户数组列表
+
+//    optional uint32 desk_status = 5;//当前桌子状态 1、准备状态 2、抢地主状态 3、出牌阶段 (先规定准备后不能取消)
+//    optional string current_deal_seat_no = 6;//当前操作者的座位号
 }
 
+//桌子初始化信息
+message DeskInitInfo{
+    optional string desk_no = 1;//自己的桌子号
+    optional string seat_no = 2;//自己的座位号
+    repeated PlayerInfo players = 3; //用户数组列表
+    optional string pre_seat_no = 4;//上一位座位号
+    optional string next_seat_no = 5;//下一位座位号
+    optional uint32 cur_desk_status = 6;//当前游戏状态(1、准备阶段 2、叫地主阶段 3、出牌阶段)
+    //如果是准备阶段
+    //如果是叫地主阶段
+    optional string cur_rob_seat_no = 7;//当前叫地主的座位号
+    repeated string rob_list = 8;//已经叫了地主的座位号数组
+    //如果是出牌阶段
+    optional string land_lord_seat_no = 9;//地主座位号
+    optional string round_win_seat_no = 10;//本轮当前赢牌的玩家座位号
+    optional string next_play_card_seat = 11;//下一位出牌玩家的座位号
+    optional uint32 desk_rate = 12;//当前桌子的倍率
+    repeated CardInfo cards = 13; //自己的牌型 叫地主阶段也会有
+    repeated CardInfo hidden_cards = 14;//底牌
+    repeated CardInfo win_cards = 15;//本轮最大的牌
 
+    optional bool is_audience = 16;//自己是否是观众
+}
 
 //用户的信息
 message PlayerInfo {
@@ -81,7 +114,9 @@ message PlayerInfo {
     optional string pre_seat_no = 6; //上一位座位号
     optional string next_seat_no = 7; //下一位座位号
     optional uint32 score = 8;//目前分数
-    repeated CardInfo cards = 9;//用户当前的牌型
+    optional uint32 card_count = 9;//用户剩余牌的数量
+    optional uint32 rob_land_score = 10;//用户抢地主的分,0
+//    repeated CardInfo cards = 9;//用户当前的牌型
     //todo 是否告知当前网络状态
 }
 

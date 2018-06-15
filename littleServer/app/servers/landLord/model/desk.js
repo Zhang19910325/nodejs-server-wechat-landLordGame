@@ -15,6 +15,8 @@ var Desk = function(no){
     this.roundWinSeatNo = null;//本轮当前赢牌的玩家座位号
     this.currentPlayerSeatNo = null;//当前出牌玩家座位号
     this.lastPlayCards = null;//最后一位出牌的牌型
+    this.robSeatList = [];//当前局抢了地主的座位号数组
+    this.curRobLandSeat = null;//当前叫地主座位号
     this.seats = {
         "p1" : null,
         "p2" : null,
@@ -56,7 +58,7 @@ pro.gameOver = function(seatNo, lastCards){
         this.status = AppCommon.DeskStatus.READY;
         return {
             'winnerSeatNo': seatNo,
-            'landlordSeatNo': this.landlordSeatNo,
+            'landLordSeatNo': this.landLordSeatNo,
             'seats': this.seats,
             'currentScore': this.currentScore,
             'lastCards': lastCards,
@@ -85,6 +87,9 @@ pro.reset = function(){
     this.roundWinSeatNo = null;
     this.rate = 1;
     this.lastPlayCards = null;//最后一位出牌的牌型
+    this.curRobLandSeat = null;
+    this.robSeatList = [];
+    this.currentPlayerSeatNo = null;
     for (var p in this.seats){
         if(!this.seats.hasOwnProperty(p)) continue;
         var currentPlayer = this.seats[p];
@@ -92,15 +97,16 @@ pro.reset = function(){
             currentPlayer.isReady = false;
             currentPlayer.isLandLord = false;
             currentPlayer.cardList = [];
+            currentPlayer.robLandScore = 0;
         }
     }
 };
 
 pro.setLandLord = function(){
     var self = this,
-        seatNo = self.landlordSeatNo;
+        seatNo = self.landLordSeatNo;
     self.status = AppCommon.DeskStatus.PLAYCARD;
-    self.currentPlaySeatNo = seatNo;
+    self.currentPlayerSeatNo = seatNo;
     self.seats[seatNo].isLandlord = true;
     self.seats[seatNo].cardList = self.seats[seatNo].cardList.concat(self.hiddenCards);
     self.seats['p1'].cardList.sort(landLordUtil.cardSort);
@@ -122,8 +128,9 @@ pro.getHiddenCardInfoPbList = function(){
 
 pro.getLastPlayCardsPbList = function(){
     var arr = [];
-    for (var index = 0; index < this.lastPlayCards.length; index++){
-        var cardObject = this.lastPlayCards[index];
+    var lastPlayCards = this.lastPlayCards || [];
+    for (var index = 0; index < lastPlayCards.length; index++){
+        var cardObject = lastPlayCards[index];
         var cardPb = new AppCommon.CardInfo;
         cardPb.setType(cardObject.type);
         cardPb.setVal(cardObject.val);

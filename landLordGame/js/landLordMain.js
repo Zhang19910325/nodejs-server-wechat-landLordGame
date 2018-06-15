@@ -13,6 +13,7 @@ import ZMPokersModel from "./model/zmPokersModel"
 import ZMLabel from "./components/zmLabel"
 import ZMToast from "./components/zmToast"
 import LordLandGameInfo from "./runtime/landLordGameInfo"
+import NetServiceDataHandle from "./netServiceDataHandle"
 
 var NetService = require("./net/netService");
 var protobuf = require("./weichatPb/protobuf.js");
@@ -21,6 +22,20 @@ var appCommonRoot = protobuf.Root.fromJSON(appCommon);
 
 const screenWidth    = window.innerWidth;
 const screenHeight   = window.innerHeight;
+
+var addHiddenCards = function(porkersModel, cardList){
+    cardList  = cardList||[];
+    for (var index = 0; index < cardList.length; index++){
+        var card = cardList[index];
+        porkersModel.addPoker(new ZMPorker(ZMFunction.getCardIdByTypeAndVal(card.type, card.val)) );
+    }
+};
+
+var addCardsByCount = function(porkersModel, count){
+    for (var index = 0; index < count; index++){
+        porkersModel.addPoker(new ZMPorker(1));
+    }
+};
 
 export default class landLordMain {
     constructor(){
@@ -72,30 +87,12 @@ export default class landLordMain {
             JMain.JForm.addControlInLast([self.landScoreLabel1,self.landScoreLabel2,self.landScoreLabel3]);
 
             //网络服务
-            var netService = new  NetService(0x123456789A);
-            netService.connect({
-                "url" : "ws://127.0.0.1:30000",
-                success : function(){
-                    console.log("连接建立成功");
-                },
-                fail:function(){
-                    //
-                    console.log("请求链接失败");
-                },
-                complete:function(err){
-                    console.log("链接请求回来", err);
-                }
+            JMain.netServiceDataHandle = new NetServiceDataHandle(self);
+            JMain.netServiceDataHandle.connect(null, function(){
+                JMain.netServiceDataHandle.joinGameReq(null, self.handleJoinGameCallback.bind(self));
             });
-            //发送握手协议
-            netService.sendData({
-                cmd:0x101,
-                success: self.handleShakeCallback.bind(self)
-            });
-            JMain.netService = netService;
 
             self.initGame();
-            //JMain.JForm.show();
-
             self.aniId = window.requestAnimationFrame(
                 self.loop.bind(self),
                 canvas
@@ -105,117 +102,64 @@ export default class landLordMain {
     loop(){
         var self = this;
         window.cancelAnimationFrame(this.aniId);
-
         JMain.JForm.show();
         self.aniId = window.requestAnimationFrame(
             self.loop.bind(self),
             canvas
         );
     }
-    addListener(){
+    handleJoinGameCallback(joinGameRspObj){//加入游戏请求回包
+        if(joinGameRspObj.rspHead && joinGameRspObj.rspHead.code){
+            //收到加入游戏错误码;
+            console.log("收到加入游戏错误码");
+            return;
+        }
         var self = this;
-        var netService = JMain.netService;
-        netService.addListenerCmd(0x12002, "lanLordMain", this.handleStartGameNty.bind(self));
-        netService.addListenerCmd(0x12004, "lanLordMain", this.handleTobLandNty.bind(self));
-        netService.addListenerCmd(0x12006, "lanLordMain", this.handleSetRobLandNty.bind(self));
-        netService.addListenerCmd(0x12008, "lanLordMain", this.handlePlayCardNty.bind(self));
-        netService.addListenerCmd(0x1200A, "lanLordMain", this.handleGameOverNty.bind(self));
-        netService.addListenerCmd(0x1200C, "lanLordMain", this.handleNoLordNty.bind(self));
-    }
-    handleShakeCallback(){//握手请求回包
-        var self = this;
-        this.addListener();
-        JMain.JForm.show();
-        //发送进入游戏请求
-        JMain.netService.sendData({
-            cmd:0x10001,
-            success:self.handleJoinGameCallback.bind(self)
-        });
-    }
-    handleJoinGameCallback(recvPacket){//加入游戏请求回包
-        //加入游戏成功返回
-        var self = this;
-        var bodyData = recvPacket.bodyData;
-        var JoinGameRspMessage = appCommonRoot.lookupType("JoinGameRsp");
-        var joinGameRsp = JoinGameRspMessage.decode(bodyData);
-        //joinGameRsp
-        var joinGameRspObj = joinGameRsp.toObject();
         this.landLordGameInfo.deskNo = joinGameRspObj.deskNo;//自己的桌号
         var seatNo = joinGameRspObj.seatNo;//桌子上对应的座位号;
-        this.landLordGameInfo.seatNo = seatNo;
         var players = joinGameRspObj.players;//玩家数组
-        this.landLordGameInfo.players = players;
 
+        this.landLordGameInfo.seatNo = seatNo;
+        this.landLordGameInfo.players = players;
         var playerMap = {}; // seatNo -> playerObject;
         for (var index = 0; index < players.length; index++){
             var currentPlayer = players[index];
             playerMap[currentPlayer.seatNo] = currentPlayer;
         }
-
         var selfPlayerInfo = playerMap[seatNo];
         this.landLordGameInfo.preSeatNo = selfPlayerInfo.preSeatNo;
         this.landLordGameInfo.nextSeatNo = selfPlayerInfo.nextSeatNo;
 
-            //设置自己的名称
-        self.pokerName1.setText(playerMap[selfPlayerInfo.seatNo].name);
-        //设置右边的名称
-        self.pokerName2.setText(playerMap[selfPlayerInfo.preSeatNo].name);
-        //设置左边的名称
-        self.pokerName3.setText(playerMap[selfPlayerInfo.nextSeatNo].name);
-        JMain.JForm.show();
-
+        self.pokerName1.setText(playerMap[selfPlayerInfo.seatNo].name);//设置自己的名称
+        playerMap[selfPlayerInfo.preSeatNo] && self.pokerName2.setText(playerMap[selfPlayerInfo.preSeatNo].name); //设置右边的名称
+        playerMap[selfPlayerInfo.nextSeatNo] && self.pokerName3.setText(playerMap[selfPlayerInfo.nextSeatNo].name);//设置左边的名称
     }
-    //玩家抢地主通知
-    handleTobLandNty(recvPacket){
+    handleTobLandNty(robLandInfoNtyObject){//玩家抢地主通知
         this.btnPanel.clearControls();
-        var self = this;
-        var bodyData = recvPacket.bodyData;
-        var robLandInfoNty = appCommonRoot.lookupType("RobLandInfoNty").decode(bodyData);
-        var robLandInfoNtyObject = robLandInfoNty.toObject();
-
         var preScore = robLandInfoNtyObject.preScore;
         var preSeatNo = robLandInfoNtyObject.preSeatNo;
-        var text = !preScore ? "不叫" : preScore + "分";
-        var label;
-        if(preSeatNo == this.landLordGameInfo.preSeatNo){//上家
-            label = this.landScoreLabel2;
-        }else if( preSeatNo== this.landLordGameInfo.nextSeatNo){//下家
-            label = this.landScoreLabel3;
-        } else {//自己
-            label = this.landScoreLabel1;
-        }
-        label.setText(text);
-        label.visible = true;
-
+        this.setPlayerRobScore(preSeatNo, preScore);
 
         this.landLordGameInfo.maxScore = robLandInfoNtyObject.currentScore;
         this.landLordGameInfo.currentRobSeatNo = robLandInfoNtyObject.nextSeat;
-        //this.maxScore = robLandInfoNtyObject.currentScore;
-
-        console.log("robLandInfoNtyObject:",robLandInfoNtyObject);
         this.toRobLord();
     }
-    handleNoLordNty(recvPacket){
+    handleNoLordNty(object){
         var self = this;
         var text = "没人抢地主游戏结束";
         var toast = new ZMToast({x:180, y:100},{width:300, height:200},{title:text});
         toast.addBtnByTextAndClick("取消", self.reStartGameWithIsStart.bind(self, false));
         toast.addBtnByTextAndClick("重新开始", self.reStartGameWithIsStart.bind(self, true));
         JMain.JForm.addControlInLast([toast]);
-        JMain.JForm.show();
     }
-    handleStartGameNty(recvPacket){
+    handleStartGameNty(startGameNtyMessageObject){
         var self =this;
         self.initGame();
-        var bodyData = recvPacket.bodyData;
-        var StartGameNtyMessage = appCommonRoot.lookupType("StartGameNty");
-        var startGameNtyMessage = StartGameNtyMessage.decode(bodyData);
-        var startGameNtyMessageObject = startGameNtyMessage.toObject();
         var cards = startGameNtyMessageObject["cards"];
         this.landLordGameInfo.currentRobSeatNo = startGameNtyMessageObject["firstRob"];
         self.dealingPoker(cards);
     }
-    handleGameOverNty(recvPacket){
+    handleGameOverNty(gameOverNtyObject){
         this.btnPanel.visible = false;
         this.clock3.visible = false;
         this.clock2.visible = false;
@@ -224,11 +168,7 @@ export default class landLordMain {
         this.btnPanel.clearControls();
 
         var self = this;
-        var bodyData = recvPacket.bodyData;
-        var gameOverNty = appCommonRoot.lookupType("GameOverNty").decode(bodyData);
-        var gameOverNtyObject = gameOverNty.toObject();
         //将最后一手牌
-
         var cards = gameOverNtyObject.cards || [];
 
         var arr = [];
@@ -250,7 +190,6 @@ export default class landLordMain {
         }else {//自己打出的牌,去掉自己打出的牌
             this.poker[1].removePokerByIds(arr);
         }
-
         //展示游戏结束
         var showResultToast = function(isWin){
             var text = isWin ? "恭喜你:赢了" : "很遗憾:输了";
@@ -258,7 +197,6 @@ export default class landLordMain {
             toast.addBtnByTextAndClick("取消", self.reStartGameWithIsStart.bind(self, false));
             toast.addBtnByTextAndClick("再来一局", self.reStartGameWithIsStart.bind(self, true));
             JMain.JForm.addControlInLast([toast]);
-            JMain.JForm.show();
         };
 
         if(this.landLordGameInfo.seatNo == gameOverNtyObject.landLordSeatNo){//如果我是地主
@@ -274,7 +212,174 @@ export default class landLordMain {
                 showResultToast(true);
             }
         }
+    }
+    handleSetRobLandNty(setRobLandNtyObject){//网络回调确定地主通知
+        this.landLordGameInfo.maxScore = setRobLandNtyObject.currentScore;
+        this.landLordGameInfo.landLordSeatNo = setRobLandNtyObject.landLordSeatNo;
+        var hiddenCards = setRobLandNtyObject.hiddenCards;
+        //显示底牌
+        this.poker[0].pokers = [];
+        addHiddenCards(this.poker[0], hiddenCards);
+        this.pokerPanel0.hidePoker=false;//调整为正面
+        this.pokerPanel0.density = 90;
 
+        if(this.landLordGameInfo.landLordSeatNo == this.landLordGameInfo.preSeatNo){//地主是我的上家
+            addHiddenCards(this.poker[2], hiddenCards);
+        }else if(this.landLordGameInfo.landLordSeatNo == this.landLordGameInfo.nextSeatNo){//地主是我的下家
+            addHiddenCards(this.poker[3], hiddenCards);
+        } else {//地主是我自己
+            addHiddenCards(this.poker[1], hiddenCards);
+        }
+        this.btnPanel.visible = false;
+        this.landLordGameInfo.currentDealSeatNo = this.landLordGameInfo.landLordSeatNo;//当前操作座位号设置为地主
+        this.toPlay();
+    }
+    handlePlayCardNty(playCardNtyObject){
+        var preSeatNo = playCardNtyObject.preSeatNo;//前一位出牌的座位号
+        var currentDealSeatNo = playCardNtyObject.nextSeatNo;
+        console.log("playCardNtyObject:",playCardNtyObject);
+        this.landLordGameInfo.rate  = playCardNtyObject.rate;
+        this.landLordGameInfo.currentDealSeatNo = currentDealSeatNo;
+        this.landLordGameInfo.lastDealSeatNo = preSeatNo;
+
+        this.setStatusLabel(preSeatNo, playCardNtyObject.cards);
+
+        //将打出的牌展示在中间
+        this.pokerPanel4.visible = true;
+        this.toPlay();
+    }
+    handleInitDeskNty(deskInitInfoObject){
+        this.initGame();
+        var self = this;
+        this.landLordGameInfo.deskNo  = deskInitInfoObject.deskNo;
+        this.landLordGameInfo.seatNo  = deskInitInfoObject.seatNo;
+        this.landLordGameInfo.players = deskInitInfoObject.players;
+
+        var playerMap = {}; // seatNo -> playerObject;
+        for (var index = 0; index < this.landLordGameInfo.players.length; index++){
+            var currentPlayer = this.landLordGameInfo.players[index];
+            playerMap[currentPlayer.seatNo] = currentPlayer;
+        }
+
+        var selfPlayerInfo = playerMap[this.landLordGameInfo.seatNo];
+        this.landLordGameInfo.preSeatNo = deskInitInfoObject.preSeatNo;
+        this.landLordGameInfo.nextSeatNo = deskInitInfoObject.nextSeatNo;
+
+        self.pokerName1.setText(playerMap[selfPlayerInfo.seatNo].name);//设置自己的名称
+        playerMap[deskInitInfoObject.preSeatNo] && self.pokerName2.setText(playerMap[deskInitInfoObject.preSeatNo].name); //设置右边的名称
+        playerMap[deskInitInfoObject.nextSeatNo] && self.pokerName3.setText(playerMap[deskInitInfoObject.nextSeatNo].name);//设置左边的名称
+
+        var status = deskInitInfoObject.curDeskStatus;//当前的桌子状态(1、准备阶段 2、叫地主阶段 3、出牌阶段)
+        if(status == 1){//准备阶段
+            if(!selfPlayerInfo.isReady){
+                this.btnPanel.visible = true;
+                this.btnPanel.addControlInLast([this.beginButton]);
+            }
+        }
+        else if(status == 2){//叫地主阶段
+            var robList = deskInitInfoObject.robList || [];
+            robList.forEach(function(seatNo){
+                var score = playerMap[seatNo].robLandScore;
+                self.setPlayerRobScore(seatNo, score);
+                self.landLordGameInfo.maxScore = score > self.landLordGameInfo.maxScore ? score : self.landLordGameInfo.maxScore;
+            });
+            this.landLordGameInfo.currentRobSeatNo = deskInitInfoObject.currentRobSeatNo;
+
+            this.poker[0].pokers.splice(3, this.poker[0].length - 3);
+
+            this.poker[2].pokers=[];
+            this.poker[3].pokers=[];
+            addCardsByCount(this.poker[2], 17);
+            addCardsByCount(this.poker[3], 17);
+            addHiddenCards(this.poker[1], deskInitInfoObject.cards);//添加自己的牌型
+            this.toRobLord();
+        }
+        else if(status == 3){//出牌阶段
+            this.landLordGameInfo.landLordSeatNo = deskInitInfoObject.landLordSeatNo;
+            this.landLordGameInfo.maxScore = playerMap[deskInitInfoObject.landLordSeatNo].robLandScore;
+
+            this.landLordGameInfo.rate  = deskInitInfoObject.deskRate;
+            this.landLordGameInfo.roundWinSeatNo = deskInitInfoObject.roundWinSeatNo;
+            this.landLordGameInfo.currentDealSeatNo = deskInitInfoObject.nextPlayCardSeat;
+
+
+            this.poker[2].pokers=[];
+            this.poker[3].pokers=[];
+            addCardsByCount(this.poker[2], playerMap[this.landLordGameInfo.preSeatNo].cardCount);
+            addCardsByCount(this.poker[3], playerMap[this.landLordGameInfo.nextSeatNo].cardCount);
+
+            //this.landLordGameInfo.lastDealSeatNo = preSeatNo;
+            if(this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.seatNo && (!this.landLordGameInfo.roundWinSeatNo && this.landLordGameInfo.roundWinSeatNo == this.landLordGameInfo.seatNo)){
+                this.landLordGameInfo.lastDealSeatNo = null
+            }else {
+                this.landLordGameInfo.lastDealSeatNo = this.landLordGameInfo.getPreSeatNo(this.landLordGameInfo.currentDealSeatNo);
+            }
+            addHiddenCards(this.poker[1], deskInitInfoObject.cards);//添加自己的牌型
+            this.poker[0].pokers = [];
+            this.pokerPanel0.hidePoker=false;//调整为正面
+            this.pokerPanel0.density = 90;
+            addHiddenCards(this.poker[0], deskInitInfoObject.hiddenCards);//添加底牌
+            this.poker[4].pokers = [];
+            this.pokerPanel4.visible = true;
+            addHiddenCards(this.poker[4], deskInitInfoObject.winCards);//显示出的牌
+
+            if(this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.roundWinSeatNo){//其余两家都没要
+                this.setStatusLabel(this.landLordGameInfo.getNextSeatNo(this.landLordGameInfo.currentDealSeatNo), []);
+                this.setStatusLabel(this.landLordGameInfo.getPreSeatNo(this.landLordGameInfo.currentDealSeatNo),[]);
+            }else if(this.landLordGameInfo.currentDealSeatNo == this.landLordGameInfo.getPreSeatNo(this.landLordGameInfo.roundWinSeatNo)){
+                this.setStatusLabel(this.landLordGameInfo.getNextSeatNo(this.landLordGameInfo.roundWinSeatNo), []);
+            }
+            this.toPlay();
+        }
+
+    }
+    setStatusLabel(prePlayerCardSeatNo, cards){
+        cards = cards || [];
+        var arr = [];
+        if(cards.length) {
+            this.landLordGameInfo.roundWinSeatNo = prePlayerCardSeatNo;
+            this.poker[4].pokers = [];
+            for (var index = 0; index < cards.length; index++) {
+                var card = cards[index];
+                var id = ZMFunction.getCardIdByTypeAndVal(card.type, card.val);
+                this.poker[4].addPoker(new ZMPorker(id));
+                arr.push(id);
+            }
+        }
+        if(prePlayerCardSeatNo == this.landLordGameInfo.preSeatNo){//上一家打出的牌
+            this.poker[2].pokers.splice(0,cards.length);
+            this.statusLabel2.visible = !cards.length;
+            this.statusLabel1.visible = false;
+        }else if(prePlayerCardSeatNo == this.landLordGameInfo.nextSeatNo){//下家打出的牌
+            this.poker[3].pokers.splice(0,cards.length);
+            this.statusLabel3.visible = !cards.length;
+            this.statusLabel2.visible = false;
+        }else {//自己打出的牌,去掉自己打出的牌
+            this.poker[1].removePokerByIds(arr);
+            this.statusLabel1.visible = !cards.length;
+            this.statusLabel3.visible = false;
+        }
+    }
+    setPlayerRobScore(seatNo, score){
+        var label;
+        var text = !score ? "不叫" : score + "分";
+        if(seatNo == this.landLordGameInfo.preSeatNo){//上家
+            label = this.landScoreLabel2;
+        }else if( seatNo== this.landLordGameInfo.nextSeatNo){//下家
+            label = this.landScoreLabel3;
+        } else {//自己
+            label = this.landScoreLabel1;
+        }
+        label.setText(text)
+        label.visible = true;
+    }
+    gameNeedReStart(){
+        this.btnPanel.clearControls();
+        var text = "您需要重新开始新一局游戏";
+        var toast = new ZMToast({x:180, y:100},{width:300, height:200},{title:text});
+        toast.addBtnByTextAndClick("取消", this.reStartGameWithIsStart.bind(this, false));
+        toast.addBtnByTextAndClick("再来一局", this.reStartGameWithIsStart.bind(this, true));
+        JMain.JForm.addControlInLast([toast]);
     }
 
     /**
@@ -289,7 +394,6 @@ export default class landLordMain {
             this.btnPanel.visible = true;
             this.btnPanel.addControlInLast([this.beginButton]);
         }
-        JMain.JForm.show();
     }
     initGame(){
         this.poker=[];
@@ -317,8 +421,6 @@ export default class landLordMain {
         this.clock2.visible = false;
         this.clock3.visible = false;
 
-
-
         this.hiddenStatusLabels();
         this.hiddenLandScoreLabel();
 
@@ -338,13 +440,11 @@ export default class landLordMain {
         this.landScoreLabel3.visible = false;
     }
     onClickStartBtn(){
-        this.btnPanel.visible = false;
         var self = this;
-        var netService = JMain.netService;
-        netService.sendData({
-            cmd:0x10003,
-            success: function(){
-                console.log("发送游戏开始请求成功");
+        JMain.netServiceDataHandle.startGameReq(null, function(s2CCommonRspObject){
+            var rspHead = s2CCommonRspObject.rspHead;
+            if(rspHead && rspHead.code == 0){
+                self.btnPanel.visible = false;
             }
         });
     }
@@ -361,14 +461,9 @@ export default class landLordMain {
         }
         this.poker[0].removePokerByIndex(0);
         this.dealerNum++;
-        JMain.JForm.show();
         if(this.poker[0].length > 3){//发到还剩3张就可以了
             this.dealingHandle = setTimeout(this.dealingPoker.bind(this, cards), 40);//40毫秒发一张牌
         }else {
-            //这里判断是不是自己叫地主
-            //if(this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.seatNo){
-            //    this.robLandLord();
-            //}
             this.toRobLord();
         }
     }
@@ -386,12 +481,6 @@ export default class landLordMain {
 
         this.btnPanel.addControlInLast([button1, button2, button3, button4]);
         this.btnPanel.visible = true;
-        JMain.JForm.show();
-        //if(this.landLordGameInfo.robTime >= 3 && this.landLordGameInfo.maxScore == 0){
-        //    //gameOver 没人抢地主游戏结束
-        //    this.gameOver();
-        //    return;
-        //}
 
     }
     onClickRobLandLord(btn){//点击抢地主回调
@@ -411,105 +500,10 @@ export default class landLordMain {
         var object = {
             score : score
         };
-        var netService = JMain.netService;
-
-        var robLandReq = appCommonRoot.lookupType("RobLandReq").create(object);
-        netService.sendData({
-            cmd : 0x10005,
-            data : robLandReq.encode().finish(),
-            success:self.robLandLordCallback.bind(self)
-        })
+        JMain.netServiceDataHandle.robLandReq(object, self.robLandLordCallback.bind(self));
     }
-    robLandLordCallback(recvPacket){//网络回调
-        var self = this;
-        var bodyData = recvPacket.bodyData;
-        var robLandRsp = appCommonRoot.lookupType("RobLandRsp").decode(bodyData);
-        console.log("robLandRsp:",robLandRsp.toObject());
-        if(!robLandRsp.rspHead){//一般情况下不可能会出现
-            console.log("服务器没有返回head ,应该谈一个错误提示")
-            return;
-        }
-        if(robLandRsp.rspHead.code){
-            console.warn("抢地主收到错误码code:", robLandRsp.rspHead.code);
-        }else {
-            console.log("抢地主成功返回");
-        }
-    }
+    robLandLordCallback(robLandRsp){//网络回调
 
-    handleSetRobLandNty(recvPacket){//网络回调确定地主通知
-        //this.hiddenLandScoreLabel();
-        var bodyData = recvPacket.bodyData;
-        var setRobLandNty = appCommonRoot.lookupType("SetLandLordNty").decode(bodyData);
-        var setRobLandNtyObject = setRobLandNty.toObject();
-        this.landLordGameInfo.maxScore = setRobLandNtyObject.currentScore;
-        this.landLordGameInfo.landLordSeatNo = setRobLandNtyObject.landLordSeatNo;
-        var hiddenCards = setRobLandNtyObject.hiddenCards;
-
-        var addHiddenCards = function(porkersModel){
-            for (var index = 0; index < hiddenCards.length; index++){
-                var card = hiddenCards[index];
-                porkersModel.addPoker(new ZMPorker(ZMFunction.getCardIdByTypeAndVal(card.type, card.val)) );
-            }
-        };
-        //显示底牌
-        this.poker[0].pokers = [];
-        addHiddenCards(this.poker[0]);
-        this.pokerPanel0.hidePoker=false;//调整为正面
-        this.pokerPanel0.density = 90;
-
-        if(this.landLordGameInfo.landLordSeatNo == this.landLordGameInfo.preSeatNo){//地主是我的上家
-            addHiddenCards(this.poker[2]);
-        }else if(this.landLordGameInfo.landLordSeatNo == this.landLordGameInfo.nextSeatNo){//地主是我的下家
-            addHiddenCards(this.poker[3]);
-        } else {//地主是我自己
-            addHiddenCards(this.poker[1]);
-        }
-        this.btnPanel.visible = false;
-        this.landLordGameInfo.currentDealSeatNo = this.landLordGameInfo.landLordSeatNo;//当前操作座位号设置为地主
-        this.toPlay();
-        JMain.JForm.show();
-    }
-
-    handlePlayCardNty(recvPacket){
-        var bodyData = recvPacket.bodyData;
-        var playCardNty = appCommonRoot.lookupType("PlayCardNty").decode(bodyData);
-        var playCardNtyObject = playCardNty.toObject();
-        var preSeatNo = playCardNtyObject.preSeatNo;//前一位出牌的座位号
-        console.log("playCardNtyObject:",playCardNtyObject);
-        this.landLordGameInfo.rate  = playCardNtyObject.rate;
-        this.landLordGameInfo.currentDealSeatNo = playCardNtyObject.nextSeatNo;
-        this.landLordGameInfo.lastDealSeatNo = preSeatNo;
-
-
-        var cards = playCardNtyObject.cards || [];
-
-        var arr = [];
-        if(cards.length) {
-            this.poker[4].pokers = [];
-            for (var index = 0; index < cards.length; index++) {
-                var card = cards[index];
-                var id = ZMFunction.getCardIdByTypeAndVal(card.type, card.val);
-                this.poker[4].addPoker(new ZMPorker(id));
-                arr.push(id);
-            }
-        }
-
-        this.hiddenStatusLabels();
-
-        if(preSeatNo == this.landLordGameInfo.preSeatNo){//上一家打出的牌
-            this.poker[2].pokers.splice(0,cards.length);
-            this.statusLabel2.visible = !cards.length;
-        }else if(preSeatNo == this.landLordGameInfo.nextSeatNo){//下家打出的牌
-            this.poker[3].pokers.splice(0,cards.length);
-            this.statusLabel3.visible = !cards.length;
-        }else {//自己打出的牌,去掉自己打出的牌
-            this.poker[1].removePokerByIds(arr);
-            this.statusLabel1.visible = !cards.length;
-        }
-
-        //将打出的牌展示在中间
-        this.pokerPanel4.visible = true;
-        this.toPlay();
     }
     //开始进入出牌阶段
     toPlay(){
@@ -528,7 +522,9 @@ export default class landLordMain {
         }else {//自己出牌
             var btn2 = new ZMButton({x:screenWidth/2 + 10,y:0},{width:100,height:50}).setText("出牌").setBGImage(ZMResourceData.Images.btn).setTag(2);
             btn2.onClick = this.onClickPlayBtn.bind(this, btn2);
-            if(this.landLordGameInfo.lastDealSeatNo && this.landLordGameInfo.lastDealSeatNo != this.landLordGameInfo.seatNo){//不是第一个出牌
+            if(this.landLordGameInfo.lastDealSeatNo
+                && this.landLordGameInfo.lastDealSeatNo != this.landLordGameInfo.seatNo
+                && (this.landLordGameInfo.roundWinSeatNo && this.landLordGameInfo.roundWinSeatNo != this.landLordGameInfo.seatNo)){//不是第一个出牌
                 var btn1 = new ZMButton({x:screenWidth/2 - 100 - 10,y:0},{width:100,height:50}).setText("不出").setBGImage(ZMResourceData.Images.btn).setTag(1);
                 btn1.onClick = this.onClickPlayBtn.bind(this, btn1);
             }
@@ -542,7 +538,6 @@ export default class landLordMain {
             this.btnPanel.addControlInLast([btn1,btn2]);
         }
         this.landLordGameInfo.lastDealSeatNo = this.landLordGameInfo.currentDealSeatNo;
-        JMain.JForm.show();
     }
     //开始进入叫地主阶段
     toRobLord(){
@@ -570,21 +565,13 @@ export default class landLordMain {
                 cards.push(ZMFunction.getPbCardInfoByCardId(id));
             }
         }
-        var playCardReq = appCommonRoot.lookupType("PlayCardReq").create();
-        playCardReq.cards = cards;
-        var netService = JMain.netService;
-        netService.sendData({
-            cmd : 0x10007,
-            data : playCardReq.encode().finish(),
-            success:self.playCardCallback.bind(self)
-        })
+        JMain.netServiceDataHandle.playCardReq({
+            cards: cards
+        }, self.playCardCallback.bind(self));
     }
-    playCardCallback(recvPacket){
-        var self = this;
-        var bodyData = recvPacket.bodyData;
-        var playCardRsp = appCommonRoot.lookupType("PlayCardRsp").decode(bodyData);
-        //
-        console.log("playCardRsp:",playCardRsp.toObject());
+
+    playCardCallback(playCardRsp){
+        console.log("playCardRsp:",playCardRsp);
     }
 
     gameOver(){

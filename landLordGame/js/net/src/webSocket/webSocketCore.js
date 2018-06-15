@@ -95,8 +95,8 @@ function start(){
     //连接成功回调
     wx.onSocketOpen(function () {
         that.currentConnectStatus = connectStatus.connected;
-        that.onSocketOpen && that.onSocketOpen();
         that.isConnected = true;
+        that.onSocketOpen && that.onSocketOpen();
     });
     //接收到数据
     wx.onSocketMessage(function (res) {

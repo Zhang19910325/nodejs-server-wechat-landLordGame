@@ -38,9 +38,12 @@ util.aSync = function(){
     if(!fn) return;
     var target = arguments[1];
     var args = Array.prototype.slice.call(arguments,2);
-    (util.wxPromisify(function(){
-        fn.apply(target, args);
-    }))();
+    //(util.wxPromisify(function(){
+    //    fn.apply(target, args);
+    //}))();
+    new Promise((resolve) => {
+        resolve();
+    }).then(fn.bind(target, ...args));
 };
 
 

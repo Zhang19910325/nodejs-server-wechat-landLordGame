@@ -15,6 +15,7 @@ export default class LandLordGameInfo{
     currentDealSeatNo = null;//当前操作座位号
     lastDealSeatNo = null;//本回合上一位操作者座位号，
     currentRobSeatNo = null;//当前叫地主座位号
+    roundWinSeatNo = null;//本轮当前赢牌的玩家座位号
     players = null;
 
     reset(){
@@ -29,5 +30,17 @@ export default class LandLordGameInfo{
         this.lastDealSeatNo = null;//本回合上一位操作者座位号，
         this.currentRobSeatNo = null;//当前叫地主座位号
         //this.players = null;
+    }
+
+    getNextSeatNo(seatNo){
+        if(seatNo == this.seatNo) return this.nextSeatNo;
+        if(seatNo == this.preSeatNo) return this.seatNo;
+        if(seatNo == this.nextSeatNo) return this.preSeatNo;
+    }
+
+    getPreSeatNo(seatNo){
+        if(seatNo == this.seatNo) return this.preSeatNo;
+        if(seatNo == this.preSeatNo) return this.nextSeatNo;
+        if(seatNo == this.nextSeatNo) return this.seatNo;
     }
 }

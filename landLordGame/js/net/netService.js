@@ -57,8 +57,8 @@ var NetService = function(uin){
  */
 function onSocketOpen(){
     //开始发送堆积的包,并且停掉超时检测
-    this.sendAllMsgQueue();
     this.exeOnSocketOpenMap();
+    this.sendAllMsgQueue();
     this.netHeartManager.start();
 }
 
@@ -129,6 +129,7 @@ NetService.prototype.removeOnCloseCallbackMap = function(key){
 
 NetService.prototype.addListenerCmd = function(cmd, key, fn){
     this.listener.addListener(cmd, key, fn);
+    return this;
 };
 
 NetService.prototype.removeListenerCmd = function(cmd, key){
@@ -227,6 +228,7 @@ NetService.prototype.sendData = function(sendObject){
         this.netHeartManager.skipHeart();
     }else{
         this.pushDisConnectedMsg(packet);
+        this.connect();
     }
 
     return packet;

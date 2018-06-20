@@ -224,4 +224,9 @@ pro.copySeats = function(){
     return dest;
 };
 
+
+var genDeskRuntime = function(){
+
+};
+
 module.exports = Desk;

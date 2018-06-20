@@ -15,6 +15,13 @@ module.exports = Reader;
 
 var pro = Reader.prototype;
 
+
+pro.addBuffer = function(buffer){
+    this.buf.concat(buffer);
+    this.len = this.buf.length;
+    return this;
+};
+
 pro.read = function(){
     if(this.pos >= this.len)
         throw Error('Reader read 读取数据超出范围');

@@ -2,6 +2,7 @@
  * Created by zhangmiao on 2018/5/4.
  */
 var Reader = require("../buffer/reader");
+var utils = require("../../util/utils");
 
 var recvPacket = function (msg, opts) {
     this.msg = msg;
@@ -43,7 +44,7 @@ pro.init = function(){
     this.cmd = this.reader.uint32();
     this.uin = this.reader.readLong(true).toString();
     this.seq = this.reader.uint32();
-    this.bodyData = this.reader.readBuffer(this.pduLen - this.headerLen);
+    this.bodyData = utils.arrayFrom(this.reader.readBuffer(this.pduLen - this.headerLen));
 
     //防止外界调用的是uid
     this.__defineGetter__("uid", function(){

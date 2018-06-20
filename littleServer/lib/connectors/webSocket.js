@@ -2,6 +2,7 @@
  * Created by zhangmiao on 2018/5/7.
  */
 var EventEmitter = require("events").EventEmitter;
+var Receiver  = require("../common/buffer/receiver");
 var util = require("util");
 var RecvPacket = require("../common/model/recvPacket");
 
@@ -10,8 +11,9 @@ var ST_WAIT_ACK = 1;
 var ST_WORKING = 2;
 var ST_CLOSED = 3;
 
-var Socket = function(id, socket){
+var Socket = function(id, socket, opts){
     EventEmitter.call(this);
+    opts = opts || {};
     this.id = id;
     this.socket = socket;
 
@@ -22,12 +24,20 @@ var Socket = function(id, socket){
 
     var self = this;
 
+    this.receiver = opts.receiver;
+    if(!this.receiver){
+        this.receiver = new Receiver();
+    }
+    this.receiver.on("message", function(buf){
+        var msg = RecvPacket.decode(buf);
+        self.emit('message', msg);
+    });
+
     socket.once('close', this.emit.bind(this, 'disconnect'));
     socket.on('error', this.emit.bind(this, 'error'));
     socket.on('message', function(msg){
         if (msg) {
-            msg = RecvPacket.decode(msg);
-            self.emit('message', msg);
+            self.receiver.add(msg);
         }
     });
 

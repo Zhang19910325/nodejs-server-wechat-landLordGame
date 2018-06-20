@@ -8,15 +8,22 @@ var protobuf = require("./weichatPb/protobuf.js");
 var appCommon = require("../pbMessage/appCommon");
 var appCommonRoot = protobuf.Root.fromJSON(appCommon);
 
+
+var decodePacket = function(recvPacket, messageType){
+    var bodyData = recvPacket.bodyData;
+    return appCommonRoot.lookupType(messageType).decode(bodyData);
+};
+
 export default class NetServiceDataHandle{
     gameMain = null;
     netService = null;
     constructor(gameMain){
         this.gameMain = gameMain;
-        this.netService = new  NetService(0x123456789A);//todo 这个uid想办法获取
+        this.netService = new  NetService(0);//todo 这个uid想办法获取
     }
     addListener(){
         var self = this;
+        this.netService.addListenerCmd(0x12000, "netServiceDataHandle", this.handleDeskUpdateNty.bind(self));//游戏开始通知
         this.netService.addListenerCmd(0x12002, "netServiceDataHandle", this.handleStartGameNty.bind(self));//游戏开始通知
         this.netService.addListenerCmd(0x12004, "netServiceDataHandle", this.handleTobLandNty.bind(self));//玩家抢地主通知
         this.netService.addListenerCmd(0x12006, "netServiceDataHandle", this.handleSetRobLandNty.bind(self));//玩家地主确定通知
@@ -25,10 +32,13 @@ export default class NetServiceDataHandle{
         this.netService.addListenerCmd(0x1200C, "netServiceDataHandle", this.handleNoLordNty.bind(self));//因没人抢地主而结束的游戏通知
         this.netService.addListenerCmd(0x1200E, "netServiceDataHandle", this.handleInitDeskNty.bind(self));//初始化桌子的信息(一般用于断网重连,此信息包含较大)
     }
+    handleDeskUpdateNty(recvPacket){
+        var deskUpdateNtyMessage = decodePacket(recvPacket, "DeskUpdateNty");
+        var deskUpdateNtyMessageObject = deskUpdateNtyMessage.toObject();
+        this.gameMain.handleDeskUpdateNty && this.gameMain.handleDeskUpdateNty(deskUpdateNtyMessageObject);
+    }
     handleStartGameNty(recvPacket){//游戏开始通知
-        var bodyData = recvPacket.bodyData;
-        var StartGameNtyMessage = appCommonRoot.lookupType("StartGameNty");
-        var startGameNtyMessage = StartGameNtyMessage.decode(bodyData);
+        var startGameNtyMessage = decodePacket(recvPacket, "StartGameNty");
         var startGameNtyMessageObject = startGameNtyMessage.toObject();
         this.gameMain.handleStartGameNty && this.gameMain.handleStartGameNty(startGameNtyMessageObject);
     }
@@ -66,7 +76,7 @@ export default class NetServiceDataHandle{
         this.gameMain.handleInitDeskNty && this.gameMain.handleInitDeskNty(deskInitInfoObject);
     }
     connect(uid, cb){
-        if(uid) this.netService.uin = uid;
+        if(uid!=null) this.netService.uin = uid;
         var self = this;
         this.netService.addOnConnectedCallback("netServiceDataHandle", function(){
             //其实握手包一定要保证是第一个,todo 现在先这么处理
@@ -77,6 +87,7 @@ export default class NetServiceDataHandle{
             });
         });
         this.netService.connect({
+            //"url" : "wss://www.lovelijing.top",
             "url" : "ws://127.0.0.1:30000",
             success : function(){
                 console.log("连接建立成功");
@@ -88,13 +99,10 @@ export default class NetServiceDataHandle{
                 console.log("链接请求回来", err);
             }
         });
-        //self.netService.sendData({
-        //    cmd:0x101,
-        //    success: self.handleShakeCallback.bind(self, cb)
-        //});
     }
 
-    handleShakeCallback(cb){//握手请求回包
+    handleShakeCallback(cb, recvPacket){//握手请求回包
+        console.log("握手包回包:",recvPacket);
         this.addListener();
         cb && cb();
     }
@@ -132,22 +140,22 @@ export default class NetServiceDataHandle{
         cb && cb(joinGameRspObj);
     }
     /*******加入游戏*****/
-    /*******开始游戏*****/
-    startGameReq(object, cb){
+    /*******准备游戏*****/
+    readyGameReq(object, cb){
         var self = this;
         this.netService.sendData({
             cmd:0x10003,
-            success: self.checkRspInvokeCallback.bind(self, self.startGameRsp.bind(self), cb)
+            success: self.checkRspInvokeCallback.bind(self, self.readyGameRsp.bind(self), cb)
         });
     }
-    startGameRsp(recvPacket, cb){
+    readyGameRsp(recvPacket, cb){
         var self = this;
         var bodyData = recvPacket.bodyData;
         var s2CCommonRsp = appCommonRoot.lookupType("S2CCommonRsp").decode(bodyData);
         var s2CCommonRspObject = s2CCommonRsp.toObject();
         cb && cb(s2CCommonRspObject);
     }
-    /*******开始游戏*****/
+    /*******准备游戏*****/
     /*******抢地主*****/
     robLandReq(object, cb){
         var self = this;

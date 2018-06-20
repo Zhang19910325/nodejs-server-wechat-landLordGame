@@ -25,12 +25,12 @@ pro.setSimpleSocket = function(simpleSocket){
 var onMessage = function(msg){
     msg = utils.toArrayBuffer(msg);
     var routeMessage = CommonPb.routeMsg.deserializeBinary(msg);
-
     if(routeMessage.getType() == CommonPb.RouteMsgType.ROUTEREGISTER){
         //这个主要是正对服务器,todo 不过可能后续会加回报，针对回报的处理可能需要
         var routeRegisterMessage = CommonPb.routeRegister.deserializeBinary(routeMessage.getMsgBody());
         this.emit("register", routeRegisterMessage.toObject());
     }else if(routeMessage.getType() == CommonPb.RouteMsgType.ROUTEDATA){
-        this.emit("message", routeMessage.getMsgBody());
+        var bodyData = routeMessage.getMsgBody();
+        if(bodyData&&bodyData.length)this.emit("message", routeMessage.getMsgBody());
     }
 };

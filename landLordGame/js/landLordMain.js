@@ -43,6 +43,33 @@ export default class landLordMain {
         this.landLordGameInfo = new LordLandGameInfo();
         this.startLandLord();
     }
+    loginGame(){
+        //调用微信登录接口
+        var  self = this;
+        wx.login({
+            success: function (loginCode) {
+                console.log("loginCode:",loginCode);
+                //调用request请求api转换登录凭证
+                wx.request({
+                    url: 'https://www.lovelijing.top/login/?loginCode='+loginCode.code + "&isSumlator="+ (window.navigator.platform == 'devtools' ? "1" : "0"),
+                    header: {
+                        'content-type': 'application/json'
+                    },
+                    success: function(res) {
+                        var uid = parseInt(res.data.uid);
+                        console.log("用户的uid:",uid);
+                        self.readyButton.visible = true;
+                        //网络服务
+                        JMain.netServiceDataHandle = new NetServiceDataHandle(self);
+                        JMain.netServiceDataHandle.connect(uid, function(){
+                            JMain.netServiceDataHandle.joinGameReq(null, self.handleJoinGameCallback.bind(self));
+                        });
+                    }
+                })
+            }
+        });
+
+    }
     startLandLord(){
         var self = this;
         ZMFunction.preLoadData("", function(){
@@ -58,7 +85,7 @@ export default class landLordMain {
             self.pokerPanel2 = new ZMPokerPanel({x:screenWidth - 95, y:30}, {width:90, height:screenHeight - 50}, true, 12);//用于显示右边的牌
             self.pokerPanel3 = new ZMPokerPanel({x:5,y:30},{width:90,height:screenHeight - 50},true,12);//用于显示左边的牌
             self.pokerPanel4 = new ZMPokerPanel({x:150,y:150},{width:screenWidth - 300,height:100},false,20);//用于显示最后一手出的牌
-            self.beginButton = new ZMButton({x:screenWidth/2 - 65,y:0},{width:130,height:50}).setText("开始").setBGImage(ZMResourceData.Images.btn);
+            self.readyButton = new ZMButton({x:screenWidth/2 - 65,y:0},{width:130,height:50}).setText("准备").setBGImage(ZMResourceData.Images.btn);
 
             self.clock1 = new ZMClass({x:screenWidth/2, y:screenHeight - 130},{width:20, height:20}).setBGImage(ZMResourceData.Images.clock);//自己的小闹钟
             self.clock2 = new ZMClass({x:screenWidth - 120, y:screenHeight/2},{width:20, height:20}).setBGImage(ZMResourceData.Images.clock);//右边的小闹钟
@@ -78,20 +105,16 @@ export default class landLordMain {
             self.landScoreLabel2 = new ZMLabel({x:screenWidth - 165, y:screenHeight/2-40}, "右边的叫分").setFontColor(ZMColor.white);//右边的
             self.landScoreLabel3 = new ZMLabel({x:60, y:screenHeight/2-70}, "左边的叫分").setFontColor(ZMColor.white);//左边的
 
-            self.beginButton.onClick = self.onClickStartBtn.bind(self);
-            self.btnPanel.addControlInLast([self.beginButton]);
+            self.readyButton.onClick = self.onClickReadyBtn.bind(self);
+            self.readyButton.visible = false;
+            self.btnPanel.addControlInLast([self.readyButton]);
             JMain.JForm.addControlInLast([self.pokerPanel0, self.pokerPanel1, self.pokerPanel2, self.pokerPanel3, self.pokerPanel4, self.btnPanel]);
             JMain.JForm.addControlInLast([self.pokerName1,self.pokerName2,self.pokerName3]);
             JMain.JForm.addControlInLast([self.clock1,self.clock2,self.clock3]);
             JMain.JForm.addControlInLast([self.statusLabel1,self.statusLabel2,self.statusLabel3]);
             JMain.JForm.addControlInLast([self.landScoreLabel1,self.landScoreLabel2,self.landScoreLabel3]);
 
-            //网络服务
-            JMain.netServiceDataHandle = new NetServiceDataHandle(self);
-            JMain.netServiceDataHandle.connect(null, function(){
-                JMain.netServiceDataHandle.joinGameReq(null, self.handleJoinGameCallback.bind(self));
-            });
-
+            self.loginGame();
             self.initGame();
             self.aniId = window.requestAnimationFrame(
                 self.loop.bind(self),
@@ -121,18 +144,33 @@ export default class landLordMain {
 
         this.landLordGameInfo.seatNo = seatNo;
         this.landLordGameInfo.players = players;
-        var playerMap = {}; // seatNo -> playerObject;
+        this.updateDeskPlayerName();
+    }
+    handleDeskUpdateNty(deskUpdateNtyMessageObject){
+        this.landLordGameInfo.players = deskUpdateNtyMessageObject.players;//玩家数组
+        this.updateDeskPlayerName();
+
+    }
+    updateDeskPlayerName(){
+        var setPlayerName = function(pokerName, player){
+            if(player){
+                pokerName.setText(player.name);
+            }else {
+                pokerName.setText("目前没人");
+            }
+        };
+        var players = this.landLordGameInfo.players;
+        var seatNo  = this.landLordGameInfo.seatNo;
+        var playerMap = {};
         for (var index = 0; index < players.length; index++){
             var currentPlayer = players[index];
             playerMap[currentPlayer.seatNo] = currentPlayer;
         }
         var selfPlayerInfo = playerMap[seatNo];
-        this.landLordGameInfo.preSeatNo = selfPlayerInfo.preSeatNo;
-        this.landLordGameInfo.nextSeatNo = selfPlayerInfo.nextSeatNo;
+        setPlayerName(this.pokerName1, selfPlayerInfo);
+        setPlayerName(this.pokerName2, playerMap[selfPlayerInfo.preSeatNo]);
+        setPlayerName(this.pokerName3, playerMap[selfPlayerInfo.nextSeatNo]);
 
-        self.pokerName1.setText(playerMap[selfPlayerInfo.seatNo].name);//设置自己的名称
-        playerMap[selfPlayerInfo.preSeatNo] && self.pokerName2.setText(playerMap[selfPlayerInfo.preSeatNo].name); //设置右边的名称
-        playerMap[selfPlayerInfo.nextSeatNo] && self.pokerName3.setText(playerMap[selfPlayerInfo.nextSeatNo].name);//设置左边的名称
     }
     handleTobLandNty(robLandInfoNtyObject){//玩家抢地主通知
         this.btnPanel.clearControls();
@@ -254,26 +292,23 @@ export default class landLordMain {
         this.landLordGameInfo.deskNo  = deskInitInfoObject.deskNo;
         this.landLordGameInfo.seatNo  = deskInitInfoObject.seatNo;
         this.landLordGameInfo.players = deskInitInfoObject.players;
+        this.landLordGameInfo.preSeatNo = deskInitInfoObject.preSeatNo;
+        this.landLordGameInfo.nextSeatNo = deskInitInfoObject.nextSeatNo;
 
         var playerMap = {}; // seatNo -> playerObject;
         for (var index = 0; index < this.landLordGameInfo.players.length; index++){
             var currentPlayer = this.landLordGameInfo.players[index];
             playerMap[currentPlayer.seatNo] = currentPlayer;
         }
-
         var selfPlayerInfo = playerMap[this.landLordGameInfo.seatNo];
-        this.landLordGameInfo.preSeatNo = deskInitInfoObject.preSeatNo;
-        this.landLordGameInfo.nextSeatNo = deskInitInfoObject.nextSeatNo;
 
-        self.pokerName1.setText(playerMap[selfPlayerInfo.seatNo].name);//设置自己的名称
-        playerMap[deskInitInfoObject.preSeatNo] && self.pokerName2.setText(playerMap[deskInitInfoObject.preSeatNo].name); //设置右边的名称
-        playerMap[deskInitInfoObject.nextSeatNo] && self.pokerName3.setText(playerMap[deskInitInfoObject.nextSeatNo].name);//设置左边的名称
+        this.updateDeskPlayerName();
 
         var status = deskInitInfoObject.curDeskStatus;//当前的桌子状态(1、准备阶段 2、叫地主阶段 3、出牌阶段)
         if(status == 1){//准备阶段
             if(!selfPlayerInfo.isReady){
                 this.btnPanel.visible = true;
-                this.btnPanel.addControlInLast([this.beginButton]);
+                this.btnPanel.addControlInLast([this.readyButton]);
             }
         }
         else if(status == 2){//叫地主阶段
@@ -389,10 +424,10 @@ export default class landLordMain {
     reStartGameWithIsStart(isStart){
         this.initGame();
         if(isStart){
-            this.onClickStartBtn();
+            this.onClickReadyBtn();
         }else {
             this.btnPanel.visible = true;
-            this.btnPanel.addControlInLast([this.beginButton]);
+            this.btnPanel.addControlInLast([this.readyButton]);
         }
     }
     initGame(){
@@ -439,9 +474,9 @@ export default class landLordMain {
         this.landScoreLabel2.visible = false;
         this.landScoreLabel3.visible = false;
     }
-    onClickStartBtn(){
+    onClickReadyBtn(){
         var self = this;
-        JMain.netServiceDataHandle.startGameReq(null, function(s2CCommonRspObject){
+        JMain.netServiceDataHandle.readyGameReq(null, function(s2CCommonRspObject){
             var rspHead = s2CCommonRspObject.rspHead;
             if(rspHead && rspHead.code == 0){
                 self.btnPanel.visible = false;

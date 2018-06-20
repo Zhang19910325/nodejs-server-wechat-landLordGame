@@ -64,7 +64,7 @@ pro.consume = function(n){
 };
 
 pro.getPacketLen = function(){
-    if(this._bufferedBytes < 2){//不足以提取出包长
+    if(this._bufferedBytes < 4){//不足以提取出包长
         this._loop  = false;
         return;
     }

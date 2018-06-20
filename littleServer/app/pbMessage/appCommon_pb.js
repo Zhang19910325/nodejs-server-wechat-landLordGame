@@ -16,6 +16,7 @@ goog.exportSymbol('proto.CardInfo', null, global);
 goog.exportSymbol('proto.Cmd', null, global);
 goog.exportSymbol('proto.DeskInitInfo', null, global);
 goog.exportSymbol('proto.DeskStatus', null, global);
+goog.exportSymbol('proto.DeskUpdateNty', null, global);
 goog.exportSymbol('proto.ErrCode', null, global);
 goog.exportSymbol('proto.GameOverNty', null, global);
 goog.exportSymbol('proto.JoinGameRsp', null, global);
@@ -276,7 +277,8 @@ proto.C2SHandshakeReq.prototype.toObject = function(opt_includeInstance) {
  */
 proto.C2SHandshakeReq.toObject = function(includeInstance, msg) {
   var f, obj = {
-
+    openId: jspb.Message.getField(msg, 1),
+    isSimulator: jspb.Message.getField(msg, 2)
   };
 
   if (includeInstance) {
@@ -313,6 +315,14 @@ proto.C2SHandshakeReq.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setOpenId(value);
+      break;
+    case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIsSimulator(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -342,6 +352,80 @@ proto.C2SHandshakeReq.prototype.serializeBinary = function() {
  */
 proto.C2SHandshakeReq.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = /** @type {string} */ (jspb.Message.getField(message, 1));
+  if (f != null) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
+    writer.writeBool(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional string open_id = 1;
+ * @return {string}
+ */
+proto.C2SHandshakeReq.prototype.getOpenId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/** @param {string} value */
+proto.C2SHandshakeReq.prototype.setOpenId = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+proto.C2SHandshakeReq.prototype.clearOpenId = function() {
+  jspb.Message.setField(this, 1, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.C2SHandshakeReq.prototype.hasOpenId = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional bool is_simulator = 2;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.C2SHandshakeReq.prototype.getIsSimulator = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
+};
+
+
+/** @param {boolean} value */
+proto.C2SHandshakeReq.prototype.setIsSimulator = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+proto.C2SHandshakeReq.prototype.clearIsSimulator = function() {
+  jspb.Message.setField(this, 2, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.C2SHandshakeReq.prototype.hasIsSimulator = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -392,7 +476,8 @@ proto.S2CHandshakeRsp.prototype.toObject = function(opt_includeInstance) {
  */
 proto.S2CHandshakeRsp.toObject = function(includeInstance, msg) {
   var f, obj = {
-
+    rspHead: (f = msg.getRspHead()) && proto.RspHead.toObject(includeInstance, f),
+    uid: jspb.Message.getField(msg, 2)
   };
 
   if (includeInstance) {
@@ -429,6 +514,15 @@ proto.S2CHandshakeRsp.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = new proto.RspHead;
+      reader.readMessage(value,proto.RspHead.deserializeBinaryFromReader);
+      msg.setRspHead(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setUid(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -458,6 +552,80 @@ proto.S2CHandshakeRsp.prototype.serializeBinary = function() {
  */
 proto.S2CHandshakeRsp.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getRspHead();
+  if (f != null) {
+    writer.writeMessage(
+      1,
+      f,
+      proto.RspHead.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {number} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional RspHead rsp_head = 1;
+ * @return {?proto.RspHead}
+ */
+proto.S2CHandshakeRsp.prototype.getRspHead = function() {
+  return /** @type{?proto.RspHead} */ (
+    jspb.Message.getWrapperField(this, proto.RspHead, 1));
+};
+
+
+/** @param {?proto.RspHead|undefined} value */
+proto.S2CHandshakeRsp.prototype.setRspHead = function(value) {
+  jspb.Message.setWrapperField(this, 1, value);
+};
+
+
+proto.S2CHandshakeRsp.prototype.clearRspHead = function() {
+  this.setRspHead(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.S2CHandshakeRsp.prototype.hasRspHead = function() {
+  return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional uint64 uid = 2;
+ * @return {number}
+ */
+proto.S2CHandshakeRsp.prototype.getUid = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {number} value */
+proto.S2CHandshakeRsp.prototype.setUid = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+proto.S2CHandshakeRsp.prototype.clearUid = function() {
+  jspb.Message.setField(this, 2, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.S2CHandshakeRsp.prototype.hasUid = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -2973,6 +3141,174 @@ proto.RobLandRsp.prototype.hasRspHead = function() {
  * @extends {jspb.Message}
  * @constructor
  */
+proto.DeskUpdateNty = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.DeskUpdateNty.repeatedFields_, null);
+};
+goog.inherits(proto.DeskUpdateNty, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.DeskUpdateNty.displayName = 'proto.DeskUpdateNty';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.DeskUpdateNty.repeatedFields_ = [1];
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.DeskUpdateNty.prototype.toObject = function(opt_includeInstance) {
+  return proto.DeskUpdateNty.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.DeskUpdateNty} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.DeskUpdateNty.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    playersList: jspb.Message.toObjectList(msg.getPlayersList(),
+    proto.PlayerInfo.toObject, includeInstance)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.DeskUpdateNty}
+ */
+proto.DeskUpdateNty.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.DeskUpdateNty;
+  return proto.DeskUpdateNty.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.DeskUpdateNty} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.DeskUpdateNty}
+ */
+proto.DeskUpdateNty.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.PlayerInfo;
+      reader.readMessage(value,proto.PlayerInfo.deserializeBinaryFromReader);
+      msg.addPlayers(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.DeskUpdateNty.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.DeskUpdateNty.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.DeskUpdateNty} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.DeskUpdateNty.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getPlayersList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      1,
+      f,
+      proto.PlayerInfo.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * repeated PlayerInfo players = 1;
+ * @return {!Array.<!proto.PlayerInfo>}
+ */
+proto.DeskUpdateNty.prototype.getPlayersList = function() {
+  return /** @type{!Array.<!proto.PlayerInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.PlayerInfo, 1));
+};
+
+
+/** @param {!Array.<!proto.PlayerInfo>} value */
+proto.DeskUpdateNty.prototype.setPlayersList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 1, value);
+};
+
+
+/**
+ * @param {!proto.PlayerInfo=} opt_value
+ * @param {number=} opt_index
+ * @return {!proto.PlayerInfo}
+ */
+proto.DeskUpdateNty.prototype.addPlayers = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.PlayerInfo, opt_index);
+};
+
+
+proto.DeskUpdateNty.prototype.clearPlayersList = function() {
+  this.setPlayersList([]);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.RobLandInfoNty = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
@@ -4496,8 +4832,8 @@ proto.Cmd = {
   KLANDLORDSTART: 65536,
   KLANDLORDJOINGAMEREQ: 65537,
   KLANDLORDJOINGAMERSP: 65538,
-  KLANDLORDSTARTGAMEREQ: 65539,
-  KLANDLORDSTARTGAMERSP: 65540,
+  KLANDLORDREADYGAMEREQ: 65539,
+  KLANDLORDREADYGAMERSP: 65540,
   KLANDLORDROBLANDREQ: 65541,
   KLANDLORDROBLANDRSP: 65542,
   KLANDLORDPLAYCARDREQ: 65543,

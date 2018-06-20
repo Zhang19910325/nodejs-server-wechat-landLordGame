@@ -50,4 +50,6 @@ var random = function(min, max){
     return Math.floor(Math.random() * delta + min);
 };
 
+pro.random = random;
+
 module.exports = CardManager;

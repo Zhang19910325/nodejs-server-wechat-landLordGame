@@ -286,7 +286,8 @@ Reader._configure = function() {
     LongBits = require("./longBits");
     utf8     = require("./utf8");
 
-    var fn = util.Long ? "toLong" : /* istanbul ignore next */ "toNumber";
+    //var fn = util.Long ? "toLong" : /* istanbul ignore next */ "toNumber";
+    var fn = "toNumber";
     util.merge(Reader.prototype, {
 
         int64: function read_int64() {

@@ -72,9 +72,10 @@ var watchHandlers = function(app, handlerMap) {
     var p = pathUtil.getHandlerPath(app.getBase(), app.serverType);
     if (!!p){
         fs.watch(p, function(event, name) {
-            if(event === 'change' && handlerMap[name]) {
+            var moduleName = path.basename(name, ".js");
+            if((event === 'change' || event === "rename")&& handlerMap[moduleName]) {//todo 这里可能针对不同的服务器系统需要做不同的处理
                 var filePath = path.join(p,name);
-                handlerMap[name] = Loader.loadFile(filePath, app);
+                handlerMap[moduleName] = Loader.loadFile(filePath, app);
             }
         });
     }

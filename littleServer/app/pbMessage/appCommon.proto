@@ -6,8 +6,8 @@ enum Cmd {
     kLandLordStart = 0x10000; //斗地主   命令值  起始点
     kLandLordJoinGameReq = 0x10001; //斗地主加入游戏 请求
     kLandLordJoinGameRsp = 0x10002; //斗地主加入游戏 回报
-    kLandLordStartGameReq = 0x10003; //斗地主开始游戏 请求
-    kLandLordStartGameRsp = 0x10004; //斗地主开始游戏 回报
+    kLandLordReadyGameReq = 0x10003; //斗地主准备游戏 请求
+    kLandLordReadyGameRsp = 0x10004; //斗地主准备游戏 回报
     kLandLordRobLandReq = 0x10005; //抢地主 请求
     kLandLordRobLandRsp = 0x10006; //抢地主 回报
     kLandLordPlayCardReq = 0x10007; //出牌请求
@@ -61,6 +61,7 @@ message C2SHandshakeReq
 
 //kLandLordJoinGameReq 0x10001
 //这里其实可以存放一些用于客户端校验服务器信息的数据，todo 自己去加
+//todo 目前这个先用于获取uid
 message S2CHandshakeRsp
 {
 }
@@ -141,6 +142,12 @@ message RobLandReq{
 //抢地主回包 kLandLordRobLandRsp 0x10006
 message RobLandRsp{
     optional RspHead rsp_head = 1; //回包包头
+}
+
+//kLandLordDeskUpdateNty 0x12000
+//桌子信息更新 ,主要是跟新用户信息
+message DeskUpdateNty{
+    repeated PlayerInfo players = 1; //用户数组列表
 }
 
 //抢地主信息通知 kLandLordRobLandNty 0x12004

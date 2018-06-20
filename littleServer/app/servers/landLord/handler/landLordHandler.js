@@ -3,24 +3,21 @@
  */
 
 var AppCommonPb = require("../../../pbMessage/appCommon_pb");
-var DeskManager = require("../manager/deskManager"); //桌子管理
-var AIPlayerManager = require("../manager/aIPlayerManager"); // AI 机器人管理
-var PlayerManager = require("../manager/playerManager");// 真实用户玩家管理
-var CardManager = require("../manager/cardManager"); // 牌管理
+
+var LandLordRunTime = require("../runtime/landLordRunTime");
 var GameRule = require("../util/gameRule");
 var AILogic = require("../util/aILogic");
-var Async = require("async");
-//var Player = require("../model/player");
 module.exports = function(app, opts){
     return new Service(app, opts);
 };
 
 var Service = function(app, opts){
     this.app = app;
-    this.deskManager = new DeskManager(app);
-    this.aIPlayerManager = new AIPlayerManager(app);
-    this.playerManager = new PlayerManager(app);
-    this.cardManager = new CardManager(app);
+    var landLordRunTime = LandLordRunTime.getLandLordRunTime(app);
+    this.deskManager = landLordRunTime.deskManager;
+    this.aIPlayerManager = landLordRunTime.aIPlayerManager;
+    this.playerManager = landLordRunTime.playerManager;
+    this.cardManager = landLordRunTime.cardManager;
 };
 
 
@@ -46,8 +43,8 @@ Service.prototype.handleMessage = function(recvPacket, session, next){
         handleJoinReq(this, recvPacket, session, next);
     } else if(cmd === AppCommonPb.Cmd.KLANDLORDREQCURDESKINFO){//请求发送桌子信息,此命令会触发kLandLordInitDeskNty 0x1200E 通知消息
         checkPlayerExits(this, recvPacket, session, getCheckNext(handleRedCurDeskInfo));
-    } else if(cmd === AppCommonPb.Cmd.KLANDLORDSTARTGAMEREQ){//开始游戏
-        checkPlayerExits(this, recvPacket, session, getCheckNext(handleStartGameReq));
+    } else if(cmd === AppCommonPb.Cmd.KLANDLORDREADYGAMEREQ){//准备游戏
+        checkPlayerExits(this, recvPacket, session, getCheckNext(handleReadyGameReq));
     }else if(cmd === AppCommonPb.Cmd.KLANDLORDROBLANDREQ){//抢地主
         checkPlayerExits(this, recvPacket, session, getCheckNext(handleRobLandReq));
     }else if(cmd === AppCommonPb.Cmd.KLANDLORDPLAYCARDREQ){//出牌
@@ -93,7 +90,6 @@ var handleRedCurDeskInfo = function(self, recvPacket, session, next){
     deskInitInfo.setCurRobSeatNo(desk.curRobLandSeat);
     deskInitInfo.setRobListList(desk.robSeatList);
     //如果是出牌阶段
-    console.log("desk.landLordSeatNo:",desk.landLordSeatNo);
     deskInitInfo.setLandLordSeatNo(desk.landLordSeatNo);
     deskInitInfo.setRoundWinSeatNo(desk.roundWinSeatNo);
     deskInitInfo.setNextPlayCardSeat(desk.currentPlayerSeatNo);
@@ -122,40 +118,57 @@ var handleJoinReq = function(self, recvPacket, session, next){
         }).then(function(){
             handleRedCurDeskInfo(self, recvPacket, session, next);
         });
+        player.send(0x10002, recvPacket.seq, joinGameRsp.serializeBinary());
     }else {
         player = self.playerManager.createPlayer(recvPacket.uid+"", session, recvPacket.uid);
         player.score = 500;//只要加入游戏都给500分
         self.deskManager.playerJoin(player);
         //todo 先默认添加两个AI机器人
-        var AIPlayer1 = self.aIPlayerManager.createNewAIPlayer();
-        AIPlayer1.score = 500;
-        self.deskManager.playerJoin(AIPlayer1);
+        //var AIPlayer1 = self.aIPlayerManager.createNewAIPlayer();
+        //AIPlayer1.score = 500;
+        //AIPlayer1.isReady = true;
+        //self.deskManager.playerJoin(AIPlayer1);
+        //
+        //var AIPlayer2 = self.aIPlayerManager.createNewAIPlayer();
+        //AIPlayer2.score = 500;
+        //AIPlayer2.isReady = true;
+        //self.deskManager.playerJoin(AIPlayer2);
 
-        var AIPlayer2 = self.aIPlayerManager.createNewAIPlayer();
-        AIPlayer2.score = 500;
-        self.deskManager.playerJoin(AIPlayer2);
 
         var seats = self.deskManager.deskInfo(player);
+        var desk = self.deskManager.getDeskByNo(player.deskNo);
 
         var list = [];
         for (var seatNo in seats){
             if(!seats.hasOwnProperty(seatNo) || !seats[seatNo]) continue;
             list.push(seats[seatNo].getPlayerInfoPb());
         }
-        //todo 这里需要给该桌子的其它玩家广播消息
-
         //发送返回的消息
         joinGameRsp.setRspHead(getRspHead());
         joinGameRsp.setDeskNo(player.deskNo);
         joinGameRsp.setSeatNo(player.seatNo);
         joinGameRsp.setPlayersList(list);
+        player.send(0x10002, recvPacket.seq, joinGameRsp.serializeBinary());
+
+        sendDeskUpdateNty(desk);
     }
-    var sendPacket = session.SendPacket.create(recvPacket.uid, 0x10002, recvPacket.seq, joinGameRsp.serializeBinary());
-    session.send(sendPacket.msg, function(){});
+};
+
+var sendDeskUpdateNty = function( desk ){
+    var seats  = desk.seats;
+    var list = [];
+    for (var seatNo in seats){
+        if(!seats.hasOwnProperty(seatNo) || !seats[seatNo]) continue;
+        list.push(seats[seatNo].getPlayerInfoPb());
+    }
+    var deskUpdateNty = new AppCommonPb.DeskUpdateNty;
+    deskUpdateNty.setPlayersList(list);
+    desk.send(0x12000, deskUpdateNty.serializeBinary());
+
 };
 
 //开始游戏请求处理
-var handleStartGameReq = function(self, recvPacket, session, next){
+var handleReadyGameReq = function(self, recvPacket, session, next){
     //接下来处理发牌逻辑 todo 这里其实需要检测各个用户是否都已经准备好了
     var uid = recvPacket.uid;
     console.log("uid:",uid);
@@ -163,9 +176,10 @@ var handleStartGameReq = function(self, recvPacket, session, next){
     var player = self.playerManager.getPlayerInfoByUid(uid);
     player.isReady = true;
     //找到对应的桌子
+
     var desk = self.deskManager.getDeskByNo(player.deskNo);
     //重置当前桌子信息,防上局干扰
-    desk.reset();
+    //desk.reset();
 
     var s2CCommonRsp = new AppCommonPb.S2CCommonRsp;
     s2CCommonRsp.setRspHead(getRspHead());
@@ -174,24 +188,29 @@ var handleStartGameReq = function(self, recvPacket, session, next){
     session.send(sendPacket.msg, function(){
     });
 
-    (function () {
-        self.cardManager.dealCards(desk);//发牌
-        desk.status = AppCommonPb.DeskStatus.ROBLORAD;
-        var firstRob = player.seatNo;//直接将抢地主的座位号设为自己
-        desk.curRobLandSeat  = firstRob;
-        //发送各自的牌给对应用户 todo 这里目前只有一个用户需要发送
-        for (var p in desk.seats) {
-            var currentPlayer = desk.seats[p];
-            if (!currentPlayer.isAI) {
-                //不是ai机器人
-                var startGameNty = new AppCommonPb.StartGameNty;
-                startGameNty.setFirstRob(firstRob);
-                startGameNty.setCardsList(currentPlayer.getCardInfoPbList());//主要是每个人的牌都不一样
-                var sendPacket = session.SendPacket.create(uid, 0x12002, 0, startGameNty.serializeBinary());
-                session.send(sendPacket.msg, function(){});
-            }
+    //检查是否所有人都已准备好
+    checkAllPlayerReady(self, desk);
+};
+
+var checkAllPlayerReady = function(self, desk){
+    var readyPlayers =[];
+    for (var p in desk.seats){
+        var currentPlayer = desk.seats[p];
+        if(currentPlayer && currentPlayer.isReady) readyPlayers.push(currentPlayer);
+    }
+    if(readyPlayers.length < 3) return;
+    self.cardManager.dealCards(desk);//发牌
+    desk.status = AppCommonPb.DeskStatus.ROBLORAD;
+    var firstRob = readyPlayers[self.cardManager.random(0,2)].seatNo;//直接将抢地主的座位号设为自己
+    readyPlayers.forEach(function(player){
+        if (!player.isAI) {
+            //不是ai机器人
+            var startGameNty = new AppCommonPb.StartGameNty;
+            startGameNty.setFirstRob(firstRob);
+            startGameNty.setCardsList(player.getCardInfoPbList());//主要是每个人的牌都不一样
+            player.send(0x12002, 0, startGameNty.serializeBinary());
         }
-    })();
+    });
 };
 //抢地主请求处理
 var handleRobLandReq = function(self, recvPacket, session, next){
@@ -410,6 +429,7 @@ var playCard = function(self, data){
         gameOverNty.setCardsList(getCardInfoPbListByCards(cardsList));
         gameOverNty.setPlayersList(desk.getPlayerInfoPbList());
         desk.send(AppCommonPb.Cmd.KLANDLORDGAMEOVERNTY, gameOverNty.serializeBinary());
+        desk.reset();
         //todo 这里需要清除掉离线玩家
         return;
     }
@@ -451,8 +471,6 @@ var aiPlayCard = function(self, uid){
     } else {
         result = ai.play(desk.seats[desk.landLordSeatNo].cardList.length);
     }
-
-    console.log("result:",result);
     playCard(self, {
         uid:uid,
         cardsList:result ? result.cardList : []

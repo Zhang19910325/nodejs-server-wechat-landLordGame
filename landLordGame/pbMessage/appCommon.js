@@ -64,10 +64,28 @@ module.exports =
             }
         },
         "C2SHandshakeReq": {
-            "fields": {}
+            "fields": {
+                "openId": {
+                    "type": "string",
+                    "id": 1
+                },
+                "isSimulator": {
+                    "type": "bool",
+                    "id": 2
+                }
+            }
         },
         "S2CHandshakeRsp": {
-            "fields": {}
+            "fields": {
+                "rspHead": {
+                    "type": "RspHead",
+                    "id": 1
+                },
+                "uid": {
+                    "type": "uint64",
+                    "id": 2
+                }
+            }
         },
         "S2CCommonRsp": {
             "fields": {
@@ -252,6 +270,15 @@ module.exports =
             "fields": {
                 "rspHead": {
                     "type": "RspHead",
+                    "id": 1
+                }
+            }
+        },
+        "DeskUpdateNty": {
+            "fields": {
+                "players": {
+                    "rule": "repeated",
+                    "type": "PlayerInfo",
                     "id": 1
                 }
             }

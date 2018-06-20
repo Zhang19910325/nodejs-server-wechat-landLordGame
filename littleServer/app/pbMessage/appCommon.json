@@ -7,8 +7,8 @@
         "kLandLordStart": 65536,
         "kLandLordJoinGameReq": 65537,
         "kLandLordJoinGameRsp": 65538,
-        "kLandLordStartGameReq": 65539,
-        "kLandLordStartGameRsp": 65540,
+        "kLandLordReadyGameReq": 65539,
+        "kLandLordReadyGameRsp": 65540,
         "kLandLordRobLandReq": 65541,
         "kLandLordRobLandRsp": 65542,
         "kLandLordPlayCardReq": 65543,
@@ -60,10 +60,28 @@
       }
     },
     "C2SHandshakeReq": {
-      "fields": {}
+      "fields": {
+        "openId": {
+          "type": "string",
+          "id": 1
+        },
+        "isSimulator": {
+          "type": "bool",
+          "id": 2
+        }
+      }
     },
     "S2CHandshakeRsp": {
-      "fields": {}
+      "fields": {
+        "rspHead": {
+          "type": "RspHead",
+          "id": 1
+        },
+        "uid": {
+          "type": "uint64",
+          "id": 2
+        }
+      }
     },
     "S2CCommonRsp": {
       "fields": {
@@ -248,6 +266,15 @@
       "fields": {
         "rspHead": {
           "type": "RspHead",
+          "id": 1
+        }
+      }
+    },
+    "DeskUpdateNty": {
+      "fields": {
+        "players": {
+          "rule": "repeated",
+          "type": "PlayerInfo",
           "id": 1
         }
       }

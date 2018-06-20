@@ -34,8 +34,8 @@
       <file leaf-file-name="www.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/bin/www.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.63977486">
-              <caret line="62" column="22" selection-start-line="62" selection-start-column="16" selection-end-line="62" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.25140712">
+              <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
               <folding>
                 <element signature="e#0#45#0" expanded="false" />
               </folding>
@@ -75,8 +75,8 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="683" />
-    <option name="y" value="-980" />
+    <option name="x" value="954" />
+    <option name="y" value="-590" />
     <option name="width" value="1837" />
     <option name="height" value="861" />
   </component>
@@ -242,7 +242,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="683" y="-980" width="1837" height="861" extended-state="0" />
+    <frame x="954" y="-590" width="1837" height="861" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26673925" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -316,8 +316,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/bin/www.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.63977486">
-          <caret line="62" column="22" selection-start-line="62" selection-start-column="16" selection-end-line="62" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.25140712">
+          <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
           <folding>
             <element signature="e#0#45#0" expanded="false" />
           </folding>

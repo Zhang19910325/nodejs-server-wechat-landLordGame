@@ -202,6 +202,7 @@ var checkAllPlayerReady = function(self, desk){
     self.cardManager.dealCards(desk);//发牌
     desk.status = AppCommonPb.DeskStatus.ROBLORAD;
     var firstRob = readyPlayers[self.cardManager.random(0,2)].seatNo;//直接将抢地主的座位号设为自己
+    desk.curRobLandSeat = firstRob;
     readyPlayers.forEach(function(player){
         if (!player.isAI) {
             //不是ai机器人

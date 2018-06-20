@@ -51,7 +51,7 @@ export default class landLordMain {
                 console.log("loginCode:",loginCode);
                 //调用request请求api转换登录凭证
                 wx.request({
-                    url: 'https://www.lovelijing.top/login/?loginCode='+loginCode.code + "&isSumlator="+ (window.navigator.platform == 'devtools' ? "1" : "0"),
+                    url: 'https://www.lovelijing.top/login/?loginCode='+loginCode.code + "&isSimulator="+ (window.navigator.platform == 'devtools' ? "1" : "0"),
                     header: {
                         'content-type': 'application/json'
                     },
@@ -167,6 +167,8 @@ export default class landLordMain {
             playerMap[currentPlayer.seatNo] = currentPlayer;
         }
         var selfPlayerInfo = playerMap[seatNo];
+        this.landLordGameInfo.preSeatNo = selfPlayerInfo.preSeatNo;
+        this.landLordGameInfo.nextSeatNo = selfPlayerInfo.nextSeatNo;
         setPlayerName(this.pokerName1, selfPlayerInfo);
         setPlayerName(this.pokerName2, playerMap[selfPlayerInfo.preSeatNo]);
         setPlayerName(this.pokerName3, playerMap[selfPlayerInfo.nextSeatNo]);
@@ -318,7 +320,7 @@ export default class landLordMain {
                 self.setPlayerRobScore(seatNo, score);
                 self.landLordGameInfo.maxScore = score > self.landLordGameInfo.maxScore ? score : self.landLordGameInfo.maxScore;
             });
-            this.landLordGameInfo.currentRobSeatNo = deskInitInfoObject.currentRobSeatNo;
+            this.landLordGameInfo.currentRobSeatNo = deskInitInfoObject.curRobSeatNo;
 
             this.poker[0].pokers.splice(3, this.poker[0].length - 3);
 
@@ -576,6 +578,7 @@ export default class landLordMain {
     }
     //开始进入叫地主阶段
     toRobLord(){
+        console.log("currentRobSeatNo:", this.landLordGameInfo.currentRobSeatNo);
         this.clock1.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.seatNo;
         this.clock2.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.preSeatNo;
         this.clock3.visible = this.landLordGameInfo.currentRobSeatNo == this.landLordGameInfo.nextSeatNo;

@@ -4,3 +4,8 @@
 landLordGame 是微信小游戏客户端代码
 
 littleServer 是nodejs服务器代码
+
+下面是我的一些效果图：
+
+
+![Alt texthttps://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/IMG_0787.JPG)

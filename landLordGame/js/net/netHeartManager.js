@@ -4,7 +4,7 @@
  */
 
 
-var intervalIdTime = 10;
+var intervalIdTime = 30;
 var NetHeartManager = function(netService){
     this.netService = netService;
     this.intervalId = undefined;
@@ -37,12 +37,12 @@ NetHeartManager.prototype.stop = function () {
 
 
 NetHeartManager.prototype.sendHeart = function(){
-    //this.netService.sendData({
-    //    cmd:0x1,
-    //    success : function(recvPacket){
-    //        console.log("收到的心跳包回包是个什么鬼:",recvPacket);
-    //    }
-    //});
+    this.netService.sendData({
+        cmd:0x501,
+        success : function(recvPacket){
+            console.log("收到的心跳包回包是个什么鬼:",recvPacket);
+        }
+    });
 };
 
 

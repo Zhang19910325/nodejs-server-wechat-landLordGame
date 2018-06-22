@@ -277,8 +277,7 @@ proto.C2SHandshakeReq.prototype.toObject = function(opt_includeInstance) {
  */
 proto.C2SHandshakeReq.toObject = function(includeInstance, msg) {
   var f, obj = {
-    openId: jspb.Message.getField(msg, 1),
-    isSimulator: jspb.Message.getField(msg, 2)
+
   };
 
   if (includeInstance) {
@@ -315,14 +314,6 @@ proto.C2SHandshakeReq.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setOpenId(value);
-      break;
-    case 2:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIsSimulator(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -352,80 +343,6 @@ proto.C2SHandshakeReq.prototype.serializeBinary = function() {
  */
 proto.C2SHandshakeReq.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = /** @type {string} */ (jspb.Message.getField(message, 1));
-  if (f != null) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = /** @type {boolean} */ (jspb.Message.getField(message, 2));
-  if (f != null) {
-    writer.writeBool(
-      2,
-      f
-    );
-  }
-};
-
-
-/**
- * optional string open_id = 1;
- * @return {string}
- */
-proto.C2SHandshakeReq.prototype.getOpenId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/** @param {string} value */
-proto.C2SHandshakeReq.prototype.setOpenId = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-proto.C2SHandshakeReq.prototype.clearOpenId = function() {
-  jspb.Message.setField(this, 1, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.C2SHandshakeReq.prototype.hasOpenId = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-/**
- * optional bool is_simulator = 2;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.C2SHandshakeReq.prototype.getIsSimulator = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 2, false));
-};
-
-
-/** @param {boolean} value */
-proto.C2SHandshakeReq.prototype.setIsSimulator = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-proto.C2SHandshakeReq.prototype.clearIsSimulator = function() {
-  jspb.Message.setField(this, 2, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.C2SHandshakeReq.prototype.hasIsSimulator = function() {
-  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -476,8 +393,7 @@ proto.S2CHandshakeRsp.prototype.toObject = function(opt_includeInstance) {
  */
 proto.S2CHandshakeRsp.toObject = function(includeInstance, msg) {
   var f, obj = {
-    rspHead: (f = msg.getRspHead()) && proto.RspHead.toObject(includeInstance, f),
-    uid: jspb.Message.getField(msg, 2)
+
   };
 
   if (includeInstance) {
@@ -514,15 +430,6 @@ proto.S2CHandshakeRsp.deserializeBinaryFromReader = function(msg, reader) {
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = new proto.RspHead;
-      reader.readMessage(value,proto.RspHead.deserializeBinaryFromReader);
-      msg.setRspHead(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setUid(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -552,80 +459,6 @@ proto.S2CHandshakeRsp.prototype.serializeBinary = function() {
  */
 proto.S2CHandshakeRsp.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRspHead();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      proto.RspHead.serializeBinaryToWriter
-    );
-  }
-  f = /** @type {number} */ (jspb.Message.getField(message, 2));
-  if (f != null) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
-
-/**
- * optional RspHead rsp_head = 1;
- * @return {?proto.RspHead}
- */
-proto.S2CHandshakeRsp.prototype.getRspHead = function() {
-  return /** @type{?proto.RspHead} */ (
-    jspb.Message.getWrapperField(this, proto.RspHead, 1));
-};
-
-
-/** @param {?proto.RspHead|undefined} value */
-proto.S2CHandshakeRsp.prototype.setRspHead = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-proto.S2CHandshakeRsp.prototype.clearRspHead = function() {
-  this.setRspHead(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.S2CHandshakeRsp.prototype.hasRspHead = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-/**
- * optional uint64 uid = 2;
- * @return {number}
- */
-proto.S2CHandshakeRsp.prototype.getUid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
-
-/** @param {number} value */
-proto.S2CHandshakeRsp.prototype.setUid = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-proto.S2CHandshakeRsp.prototype.clearUid = function() {
-  jspb.Message.setField(this, 2, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.S2CHandshakeRsp.prototype.hasUid = function() {
-  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -4829,6 +4662,12 @@ proto.GameOverNty.prototype.clearPlayersList = function() {
 proto.Cmd = {
   KHANDSAKEREQ: 257,
   KHANDSHAKERSP: 258,
+  KHEARTTICKREQ: 1281,
+  KHEARTTICKRSP: 1282,
+  KSERVERSTART: 4096,
+  KSERVERUSERREGISTERDISCONNECTED: 4097,
+  KSERVERUSERDISCONNECTED: 4098,
+  KSERVEREND: 65535,
   KLANDLORDSTART: 65536,
   KLANDLORDJOINGAMEREQ: 65537,
   KLANDLORDJOINGAMERSP: 65538,

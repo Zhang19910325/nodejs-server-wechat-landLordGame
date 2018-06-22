@@ -29,6 +29,14 @@ Service.prototype.getPlayerWithUid = function(uid){
     return player;
 };
 
+Service.prototype.removePlayerWithUid = function(uid){
+    var player = this.getPlayerWithUid(uid);
+    if(!player) return;
+    this.deskManager.removePlayer(player);
+    this.aIPlayerManager.removePlayerByUid(uid);
+    this.playerManager.removePlayerByUid(uid);
+};
+
 Service.prototype.handleMessage = function(recvPacket, session, next){
     var self = this;
     var getCheckNext = function(handle){
@@ -39,7 +47,9 @@ Service.prototype.handleMessage = function(recvPacket, session, next){
         }
     };
     var cmd = recvPacket.cmd;
-    if(cmd === AppCommonPb.Cmd.KLANDLORDJOINGAMEREQ){//加入游戏
+    if(cmd == AppCommonPb.Cmd.KSERVERUSERDISCONNECTED){
+        handleUserDisconnected(self, recvPacket, session, next);
+    }else if(cmd === AppCommonPb.Cmd.KLANDLORDJOINGAMEREQ){//加入游戏
         handleJoinReq(this, recvPacket, session, next);
     } else if(cmd === AppCommonPb.Cmd.KLANDLORDREQCURDESKINFO){//请求发送桌子信息,此命令会触发kLandLordInitDeskNty 0x1200E 通知消息
         checkPlayerExits(this, recvPacket, session, getCheckNext(handleRedCurDeskInfo));
@@ -55,6 +65,16 @@ Service.prototype.handleMessage = function(recvPacket, session, next){
         console.log("目前没有对cmd：",cmd,"做任何处理")
     }
 
+};
+//处理某个用户断掉连接
+var handleUserDisconnected = function(self, recvPacket, session, next){
+    var uid = recvPacket.uid;
+    var player = self.getPlayerWithUid(uid);
+    if(!player) return;
+    player.status = AppCommonPb.PlayerStatus.OFFLINE;
+    player.isAI = true;
+    console.log("收到用户断线了");
+    //this.status = AppCommon.PlayerStatus.NORMAL;//状态
 };
 //加入是否加入到游戏
 var checkPlayerExits = function(self, recvPacket, session, next) {
@@ -111,6 +131,7 @@ var handleJoinReq = function(self, recvPacket, session, next){
     var joinGameRsp  = new AppCommonPb.JoinGameRsp;
 
     if(player){
+        //player
         player.session = session;//设置新的session
         joinGameRsp.setRspHead(getRspHead(0x10004, "用户已存在,重新拉取桌子信息"));
         new Promise(function(resolve) {
@@ -119,6 +140,8 @@ var handleJoinReq = function(self, recvPacket, session, next){
             handleRedCurDeskInfo(self, recvPacket, session, next);
         });
         player.send(0x10002, recvPacket.seq, joinGameRsp.serializeBinary());
+        player.status = AppCommonPb.PlayerStatus.NORMAL;
+        player.isAI = false;
     }else {
         player = self.playerManager.createPlayer(recvPacket.uid+"", session, recvPacket.uid);
         player.score = 500;//只要加入游戏都给500分
@@ -432,6 +455,7 @@ var playCard = function(self, data){
         desk.send(AppCommonPb.Cmd.KLANDLORDGAMEOVERNTY, gameOverNty.serializeBinary());
         desk.reset();
         //todo 这里需要清除掉离线玩家
+        clearOfflinePlayer(self, desk);
         return;
     }
     var playCardNty = new AppCommonPb.PlayCardNty;
@@ -492,4 +516,13 @@ var getCardInfoPbListByCards = function(cards){
 
 var randomInt = function (formNum, toNum) {
     return parseInt(Math.random() * (toNum - formNum + 1) + formNum);
+};
+
+var clearOfflinePlayer = function(self, desk){
+    for (var p in desk.seats){
+        var currentPlayer = desk.seats[p];
+        if(!currentPlayer) continue;
+        if(currentPlayer.status != AppCommonPb.Cmd.PlayerStatus.NORMAL)
+            self.removePlayerWithUid(currentPlayer.uid);
+    }
 };

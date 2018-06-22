@@ -8,11 +8,8 @@ var utils = require("../../../../lib/util/utils");
 var util = require("util");
 var Long = require("long");
 
-var HandShakeProcessor = function(app, cmd){
-    BaseProcessor.call(this, app, cmd);
-    this.uidMap = {};//openId - > uid
-    this.simulatorMap = {};//openId - > uid
-    this.exsitUids = [];
+var HandShakeProcessor = function(app, isProcess){
+    BaseProcessor.call(this, app, isProcess);
 };
 
 util.inherits(HandShakeProcessor, BaseProcessor);
@@ -57,8 +54,10 @@ pro.processRecvPacket = function(packet ,session, next){
     //这里需要一个回包告诉客户端连接已经建立
     //var sendPacket = session.SendPacket.create(uid, 0x102, packet.seq, c2SHandshakeRsp.serializeBinary());
     var sendPacket = session.SendPacket.create(uid, 0x102, packet.seq, null);
-
     SessionService.sendMessageByUid(uid, sendPacket.msg);
+
+    //建立握手了,可以开始对这个链接进行监听
+    session.on("closed", onSocketDisconnect.bind(null,this.app));
     return false;
 
 };
@@ -78,6 +77,13 @@ var getRspHead = function(code = 0, des){
     rspHead.setCode(code);
     des && rspHead.setDes(des);
     return rspHead;
+};
+
+var onSocketDisconnect = function(app, session){
+    //需要发给路由告诉各个服务器这个长连接已经断掉了
+    var backendSession = app.backendSessionService.getBackendSessionBySession(session);
+    var sendPacket = session.SendPacket.create(session.uid, AppCommonPb.Cmd.KSERVERUSERDISCONNECTED, 0, null);
+    backendSession.send(sendPacket, function(){});
 };
 
 

@@ -3,6 +3,7 @@
  */
 var ProcessService = require("../../../common/processService/processService");
 var HandShakeProcessor = require("../processor/handShakeProcessor");
+var HeartTickProcessor = require("../processor/heartTickProcessor");
 var BaseProcessor = require("../../../common/processService/baseProcessor");
 var AppCommonPb = require("../../../pbMessage/appCommon_pb");
 
@@ -17,6 +18,11 @@ var Service = function(app, opts){
 };
 
 Service.prototype.init = function(){
+    //心跳包
+    this.processService.addProcessor(new HeartTickProcessor(this.app, function(cmd){
+        return true;
+    }));
+    //握手包
     this.processService.addProcessor(new HandShakeProcessor(this.app, function(cmd){
         return AppCommonPb.Cmd.KHANDSAKEREQ == cmd;
     }));
@@ -28,28 +34,21 @@ Service.prototype.init = function(){
 Service.prototype.handleMessage = function(packet, session, next){
     //检查命令值cmd是否自己能处理
     //这里需要查看session的类型，消息是从什么地方来的
-    //this.app.routeMessage(recvPacket.msg, function(){
-    //});
     var toNext = this.processService.handleProcessorsPacket(packet, session, next);
     if(!toNext) return;
 
     if (session.name === 'Session'){
         //这个是client直接发的
         //我需要发给路由服务器
-        var backendSession = getBackendSession(this, session);
+        //var backendSession = getBackendSession(this, session);
+        var backendSession = this.app.backendSessionService.getBackendSessionBySession(session);
         backendSession.send(packet, function(){
         });
     }else if(session.name === 'BackendSession'){
         //这个是路由服务过来的,直接找到需要传给客户端的session传回去
         var sessionService = this.app.sessionService;
         sessionService.sendMessageByUid(packet.uid, packet.msg);
-        //var clientSession = sessionService.getByUid(packet.uid);
-        //clientSession.send(packet)
     }
-
-
-    //this.app.routeMessage(packet.msg, function(){
-    //});
 };
 
 

@@ -13,6 +13,16 @@ var AIPlayerManager = function(app, opts){
 
 };
 
+AIPlayerManager.prototype.removePlayerByUid = function(uid){
+    var uidString;
+    if (typeof uid === "number" || typeof uid === "string"){
+        uidString = uid + "";
+    } else {
+        uidString = uid.toString();
+    }
+    delete  this.aiMap[uidString];
+};
+
 AIPlayerManager.prototype.createNewAIPlayer = function(){
     //创建一个ai机器人
     var player = new Player("我是AI机器人"+curAIUid+"号",null, Long.fromValue(curAIUid++));

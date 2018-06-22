@@ -16,8 +16,25 @@ var PlayerManager = function(app, opts){
 var pro  = PlayerManager.prototype;
 
 pro.getPlayerInfoByUid = function(uid){
-    return this.uidMap[uid];
+    var uidString;
+    if (typeof uid === "number" || typeof uid === "string"){
+        uidString = uid + "";
+    } else {
+        uidString = uid.toString();
+    }
+    return this.uidMap[uidString];
 };
+
+pro.removePlayerByUid = function(uid){
+    var uidString;
+    if (typeof uid === "number" || typeof uid === "string"){
+        uidString = uid + "";
+    } else {
+        uidString = uid.toString();
+    }
+    delete  this.uidMap[uidString];
+};
+
 pro.createPlayer = function(name, session, uid){
     var player = new Player(name, session, uid);
     var uidString;

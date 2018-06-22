@@ -1,7 +1,17 @@
 syntax = "proto2";
 enum Cmd {
+
+
     kHandsakeReq  = 0x101;//握手协议请求
     kHandshakeRsp = 0x102;//握手协议回报
+
+    kHeartTickReq = 0x501;//客户端心跳包请求
+    kHeartTickRsp = 0x502;//服务端心跳包回包
+
+    kServerStart = 0x1000;//服务器之间的交互命令 开始
+    kServerUserRegisterDisconnected = 0x1001;//other -> rout 服务器向路由服务监听某个用户断连
+    kServerUserDisconnected = 0x1002;//connector -> rout/other 某个用户断掉连接
+    kServerEnd = 0xffff;//服务器之间的交互命令 结束
 
     kLandLordStart = 0x10000; //斗地主   命令值  起始点
     kLandLordJoinGameReq = 0x10001; //斗地主加入游戏 请求

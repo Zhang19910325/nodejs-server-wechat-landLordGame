@@ -47,6 +47,13 @@ pro.deskInfo = function(player){
 };
 
 
+pro.removePlayer = function(player){
+    var deskPlayer = this.desks[player.deskNo].seats[player.seatNo];
+    if(deskPlayer.uid == player.uid){
+        this.desks[player.deskNo].seats = null;
+    }
+};
+
 
 
 pro.create = function(player){

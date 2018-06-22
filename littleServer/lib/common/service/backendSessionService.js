@@ -43,6 +43,18 @@ BackendSessionService.prototype.getSessionSet = function(serverType){
     return sessionSet;
 };
 
+BackendSessionService.prototype.getBackendSessionBySession = function(session){
+    var sessionSet = this.getSessionSet("route");
+    var serverId = session.get("routerId");
+    if (!serverId){
+        //那就要生成一个路由Id
+        var sessionArr = sessionSet.sessionArr;
+        serverId = sessionArr[Math.floor(Math.random()*sessionArr.length)];
+        session.set("routerId", serverId);
+    }
+    return sessionSet.getSessionById(serverId);
+};
+
 
 
 

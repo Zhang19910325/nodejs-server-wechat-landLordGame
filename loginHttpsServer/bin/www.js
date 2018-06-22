@@ -99,9 +99,9 @@ randomLong = function () {
 
 var reqOpenId = function(params, cb){
     const req = https.request(getOptions(params), (res) => {
-        console.log('statusCode:', res.statusCode);
-        console.log('headers:', res.headers);
-        console.log('res.data:', res.data);
+        //console.log('statusCode:', res.statusCode);
+        //console.log('headers:', res.headers);
+        //console.log('res.data:', res.data);
         res.on('data', (d) => {
             var rspJson = JSON.parse(d+"");
             var openid = rspJson.openid;

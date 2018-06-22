@@ -87,8 +87,8 @@ export default class NetServiceDataHandle{
             });
         });
         this.netService.connect({
-            //"url" : "wss://www.lovelijing.top",
-            "url" : "ws://127.0.0.1:30000",
+            "url" : "wss://www.lovelijing.top",
+            //"url" : "ws://127.0.0.1:30000",
             success : function(){
                 console.log("连接建立成功");
             },

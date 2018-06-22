@@ -522,7 +522,7 @@ var clearOfflinePlayer = function(self, desk){
     for (var p in desk.seats){
         var currentPlayer = desk.seats[p];
         if(!currentPlayer) continue;
-        if(currentPlayer.status != AppCommonPb.Cmd.PlayerStatus.NORMAL)
+        if(currentPlayer.status != AppCommonPb.PlayerStatus.NORMAL)
             self.removePlayerWithUid(currentPlayer.uid);
     }
 };

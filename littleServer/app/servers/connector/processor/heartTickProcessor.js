@@ -32,7 +32,8 @@ pro.processRecvPacket = function(packet ,session, next){
         }, checkHeartTime * 1000);
     }
     if (packet.cmd == AppCommonPb.Cmd.KHEARTTICKREQ){
-        console.log("服务器收到了心跳包uid:", packet.uid,"sid:",sid);
+        //todo 这里其实要给一个回包
+        //console.log("服务器收到了心跳包uid:", packet.uid,"sid:",sid);
     }
     if (packet.cmd == AppCommonPb.Cmd.KHANDSAKEREQ){
         session.on("closed", heartTickOnClose.bind(null, self, sid));

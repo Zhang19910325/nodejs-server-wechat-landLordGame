@@ -63,9 +63,8 @@ export default class LandLordManager{
         this.netService.addListenerCmd(0x1200E, "landLordManager", this.handleInitDeskNty.bind(this));//初始化桌子的信息(一般用于断网重连,此信息包含较大)
     }
     handleDeskUpdateNty(recvPacket){
-        //let self = this;
-        //var deskUpdateNtyMessageObject = decodePacketToObject(recvPacket,"DeskUpdateNty");
-        //ZMNotificationCenter.postNotificationName("",deskUpdateNtyMessageObject);
+        var deskUpdateNtyMessageObject = decodePacketToObject(recvPacket,"DeskUpdateNty");
+        ZMNotificationCenter.postNotificationName("landLordDeskUpdateNty",deskUpdateNtyMessageObject);
     }
     handleStartGameNty(recvPacket){//游戏开始通知
         var startGameNtyMessageObject = decodePacketToObject(recvPacket, "StartGameNty");

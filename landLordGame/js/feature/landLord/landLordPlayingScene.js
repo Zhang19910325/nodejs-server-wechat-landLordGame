@@ -53,7 +53,6 @@ export default class LandLordPlayingScene extends ZMClass{
         this.startGameReq();
     }
     addObserver(){
-        ZMNotificationCenter.addObserver(this, this.handleDeskUpdateNty.bind(this), "landLordDeskUpDate");
         ZMNotificationCenter.addObserver(this, this.handleInitDeskNty.bind(this), "landLordInitDeskNty");
         ZMNotificationCenter.addObserver(this, this.handleStartGameNty.bind(this), "landLordStartGameNty");
         ZMNotificationCenter.addObserver(this, this.handleToRobLordNty.bind(this), "landLordToLandNty");
@@ -61,6 +60,7 @@ export default class LandLordPlayingScene extends ZMClass{
         ZMNotificationCenter.addObserver(this, this.handlePlayCardNty.bind(this), "landLordPlayCardNty");
         ZMNotificationCenter.addObserver(this, this.handleGameOverNty.bind(this), "landLordGameOverNty");
         ZMNotificationCenter.addObserver(this, this.handleNoLordNty.bind(this), "landLordNoLordNty");
+        ZMNotificationCenter.addObserver(this, this.handleDeskUpdateNty.bind(this), "landLordDeskUpdateNty");
     }
     handleHandShakeNty(){
         let self = this;
@@ -160,9 +160,9 @@ export default class LandLordPlayingScene extends ZMClass{
             this.toPlay();
         }
     }
-    handleDeskUpdateNty(nty){
-        let self = this;
-        let info = nty.info;
+    handleDeskUpdateNty(deskUpdateNtyMessageObject){
+        this.landLordManager.players = deskUpdateNtyMessageObject.players;
+        this.updateDeskPlayerInfo()
     }
     handleToRobLordNty(robLandInfoNtyObject){
         this.btnPanel.clearControls();

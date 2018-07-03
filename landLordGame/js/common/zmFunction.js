@@ -5,6 +5,7 @@
 import ResourceData from "./zmResourceData"
 
 export default {
+    userInfo :null,
     Random(formNum, toNum){
         return parseInt(Math.random() * (toNum - formNum + 1) + formNum);
     },
@@ -146,5 +147,18 @@ export default {
             imageData.data[i + 2 ] = (imageData.data[i+2] +n)>255?255:(imageData.data[i+2] +n);
         }
         return imageData;
+    },
+    promiseGetUserInfo(){
+        let self = this;
+        return new Promise((resolve) => {
+            if(self.userInfo) resolve(self.userInfo);
+            else
+            wx.getUserInfo({
+                success: res => {
+                    self.userInfo = res.userInfo;
+                    resolve(self.userInfo);
+                }
+            })
+        });
     }
 }

@@ -10,6 +10,7 @@ export default class ZMForm extends ZMClass{
         super({x:0, y:0}, size);
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d');
+        this.scenesArr = [];
         var _top = 0,_left=0;
         var _op=this.canvas;
         while (_op != null){

@@ -15,7 +15,7 @@ var Player = function(name, session, uid){
     this.name = name;
     this.session = session;
     this.uid  = uid;
-
+    this.avatarUrl = "https://wx.qlogo.cn/mmopen/vi_32/T0lfWA8PgdcaYVzada8BFF2kmp9OTv2kMLC17ibia46zWDgcIVkLLTjxoMxV5mgfRjBdGHdECeDgOhP3YpvFA1hA/132";//todo 这里最好有一个默认的头像地址
     this.cardList = [];
     this.isReady = false;//是否已经准备
     this.deskNo = null;//桌号
@@ -26,6 +26,7 @@ var Player = function(name, session, uid){
     this.robLandScore = 0; //叫地主的分
     this.nextCardsCnt = 0; //下一位玩家的手牌数
     this.preCardsCnt  = 0; //上一位玩家的手牌数
+    this.lastPlayCardList = [];//最后一手出牌的牌型
 
     //计时器
     this.timer = null;
@@ -66,6 +67,13 @@ Player.prototype.subCards = function(list){
         }
     }
 };
+Player.prototype.reset = function(){
+    this.isReady = false;
+    this.isLandLord = false;
+    this.cardList = [];
+    this.robLandScore = 0;
+    this.lastPlayCardList = [];
+};
 
 //获取用户对应的pb info
 Player.prototype.getPlayerInfoPb = function(){
@@ -80,6 +88,8 @@ Player.prototype.getPlayerInfoPb = function(){
     playerInfo.setPreSeatNo(this.preSeatNo);
     playerInfo.setNextSeatNo(this.nextSeatNo);
     playerInfo.setCardCount(this.cardList.length);
+    playerInfo.setAvatarUrl(this.avatarUrl);
+    playerInfo.setLastPlayCardsList(this.getLastPlayCardInfoPbList());
     return playerInfo;
 };
 
@@ -88,6 +98,18 @@ Player.prototype.getCardInfoPbList = function(){
     var arr = [];
     for (var index = 0; index < this.cardList.length; index++){
         var cardObject = this.cardList[index];
+        var cardPb = new AppCommon.CardInfo;
+        cardPb.setType(cardObject.type);
+        cardPb.setVal(cardObject.val);
+        arr.push(cardPb);
+    }
+    return arr;
+};
+
+Player.prototype.getLastPlayCardInfoPbList = function(){
+    var arr = [];
+    for (var index = 0; index < this.lastPlayCardList.length; index++){
+        var cardObject = this.lastPlayCardList[index];
         var cardPb = new AppCommon.CardInfo;
         cardPb.setType(cardObject.type);
         cardPb.setVal(cardObject.val);

@@ -10,7 +10,7 @@ if (!JMain) {
         JForm:null,
         JTick:null,
         JID:0,
-        pokerSize : {width: 70, height:80},
+        pokerSize : {width: 40, height:50},
         netService : null
     }
 }

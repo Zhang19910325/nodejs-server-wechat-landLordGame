@@ -8,16 +8,24 @@ module.exports =
             "values": {
                 "kHandsakeReq": 257,
                 "kHandshakeRsp": 258,
+                "kHeartTickReq": 1281,
+                "kHeartTickRsp": 1282,
+                "kServerStart": 4096,
+                "kServerUserRegisterDisconnected": 4097,
+                "kServerUserDisconnected": 4098,
+                "kServerEnd": 65535,
                 "kLandLordStart": 65536,
                 "kLandLordJoinGameReq": 65537,
                 "kLandLordJoinGameRsp": 65538,
-                "kLandLordStartGameReq": 65539,
-                "kLandLordStartGameRsp": 65540,
+                "kLandLordReadyGameReq": 65539,
+                "kLandLordReadyGameRsp": 65540,
                 "kLandLordRobLandReq": 65541,
                 "kLandLordRobLandRsp": 65542,
                 "kLandLordPlayCardReq": 65543,
                 "kLandLordPlayCardRsp": 65544,
                 "kLandLordReqCurDeskInfo": 65545,
+                "kLandLordStartGameReq": 65546,
+                "kLandLordStartGameRsp": 65547,
                 "kLandLordDeskUpdateNty": 73728,
                 "kLandLordStartGameNty": 73730,
                 "kLandLordRobLandNty": 73732,
@@ -34,7 +42,9 @@ module.exports =
                 "kLandLordScoreErr": 65537,
                 "kLandLordPlayCardErr": 65538,
                 "kLandLordUserNotJoin": 65539,
-                "kLandLordUserExits": 65540
+                "kLandLordUserExits": 65540,
+                "kLandLordDeskExits": 65541,
+                "kLandLordRobLordSeatErr": 65542
             }
         },
         "RspHead": {
@@ -64,28 +74,10 @@ module.exports =
             }
         },
         "C2SHandshakeReq": {
-            "fields": {
-                "openId": {
-                    "type": "string",
-                    "id": 1
-                },
-                "isSimulator": {
-                    "type": "bool",
-                    "id": 2
-                }
-            }
+            "fields": {}
         },
         "S2CHandshakeRsp": {
-            "fields": {
-                "rspHead": {
-                    "type": "RspHead",
-                    "id": 1
-                },
-                "uid": {
-                    "type": "uint64",
-                    "id": 2
-                }
-            }
+            "fields": {}
         },
         "S2CCommonRsp": {
             "fields": {
@@ -95,7 +87,43 @@ module.exports =
                 }
             }
         },
+        "JoinGameReq": {
+            "fields": {
+                "name": {
+                    "type": "string",
+                    "id": 1
+                },
+                "avatarUrl": {
+                    "type": "string",
+                    "id": 2
+                }
+            }
+        },
         "JoinGameRsp": {
+            "fields": {
+                "rspHead": {
+                    "type": "RspHead",
+                    "id": 1
+                },
+                "deskNo": {
+                    "type": "string",
+                    "id": 2
+                },
+                "seatNo": {
+                    "type": "string",
+                    "id": 3
+                },
+                "players": {
+                    "rule": "repeated",
+                    "type": "PlayerInfo",
+                    "id": 4
+                }
+            }
+        },
+        "StartGameReq": {
+            "fields": {}
+        },
+        "StartGameRsp": {
             "fields": {
                 "rspHead": {
                     "type": "RspHead",
@@ -230,6 +258,15 @@ module.exports =
                 "robLandScore": {
                     "type": "uint32",
                     "id": 10
+                },
+                "avatarUrl": {
+                    "type": "string",
+                    "id": 11
+                },
+                "lastPlayCards": {
+                    "rule": "repeated",
+                    "type": "CardInfo",
+                    "id": 12
                 }
             }
         },

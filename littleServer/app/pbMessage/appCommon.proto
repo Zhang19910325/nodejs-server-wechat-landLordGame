@@ -23,6 +23,8 @@ enum Cmd {
     kLandLordPlayCardReq = 0x10007; //出牌请求
     kLandLordPlayCardRsp = 0x10008; //出牌回包
     kLandLordReqCurDeskInfo = 0x10009; //请求发送桌子信息,此命令会触发kLandLordInitDeskNty 0x1200E 通知消息
+    kLandLordStartGameReq = 0x1000A; //用户开始游戏请求
+    kLandLordStartGameRsp = 0x1000B; //用户开始游戏请求回包
 
     kLandLordDeskUpdateNty = 0x12000; //斗地主桌子信息更新
     kLandLordStartGameNty = 0x12002; //游戏开始通知
@@ -41,6 +43,8 @@ enum ErrCode {
     kLandLordPlayCardErr = 0x10002;//出牌牌型错误
     kLandLordUserNotJoin = 0x10003;//用户未加入游戏错误,在当前环境下未找到用户,需要重新加入游戏
     kLandLordUserExits = 0x10004;//用户已存在,拉取桌子信息
+    kLandLordDeskExits = 0x10005;//用户已经在桌子上了
+    kLandLordRobLordSeatErr = 0x10006;//不是当前位置叫地主
 }
 
 //公共包头
@@ -69,7 +73,7 @@ message C2SHandshakeReq
 {
 }
 
-//kLandLordJoinGameReq 0x10001
+//kHandshakeRsp 0x102
 //这里其实可以存放一些用于客户端校验服务器信息的数据，todo 自己去加
 //todo 目前这个先用于获取uid
 message S2CHandshakeRsp
@@ -80,15 +84,29 @@ message S2CCommonRsp{
     optional RspHead rsp_head = 1; //请求包头,返回的公共包头,返回包都要以此为基准
 }
 
+//kLandLordJoinGameReq 0x10001
+message JoinGameReq{
+    optional string name = 1;//用户nickname
+    optional string avatar_url = 2;//用户头像地址
+}
+
 //kLandLordJoinGameRsp 0x10002
 message JoinGameRsp{
     optional RspHead rsp_head = 1; //请求包头
     optional string desk_no = 2; //自己进入游戏后的桌子号
     optional string seat_no = 3; //自己进入游戏后的座位号
     repeated PlayerInfo players = 4; //用户数组列表
+}
 
-//    optional uint32 desk_status = 5;//当前桌子状态 1、准备状态 2、抢地主状态 3、出牌阶段 (先规定准备后不能取消)
-//    optional string current_deal_seat_no = 6;//当前操作者的座位号
+//kLandLordStartGameReq 0x1000A
+message StartGameReq{
+}
+
+message StartGameRsp{
+    optional RspHead rsp_head = 1; //请求包头
+    optional string desk_no = 2; //自己进入游戏后的桌子号
+    optional string seat_no = 3; //自己进入游戏后的座
+    repeated PlayerInfo players = 4; //用户数组列表
 }
 
 //桌子初始化信息
@@ -127,6 +145,8 @@ message PlayerInfo {
     optional uint32 score = 8;//目前分数
     optional uint32 card_count = 9;//用户剩余牌的数量
     optional uint32 rob_land_score = 10;//用户抢地主的分,0
+    optional string avatar_url = 11;//用户头像地址
+    repeated CardInfo last_play_cards = 12;//最后出的一手牌
 //    repeated CardInfo cards = 9;//用户当前的牌型
     //todo 是否告知当前网络状态
 }

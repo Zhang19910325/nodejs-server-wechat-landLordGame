@@ -1,9 +1,8 @@
 import './js/libs/weapp-adapter'
 import './js/libs/symbol'
 import "./js/libs/jMain"
+import "./js/allGameConfig"
+import "./js/common/zmNotificationCenter"
 
-//import Main from './js/main'
-import LandLordMain from  "./js/landLordMain"
-
-//new Main()
-new LandLordMain();
+import Main from './js/main'
+new Main();

@@ -14,7 +14,7 @@ export default class ZMLabel extends ZMClass{
     fontSize=10;//字体大小
     isSelect=false;
     constructor(argP, argtext){
-        super(argP, {width:100, height:20});
+        super(argP, {width:0, height:20});
         this.text = argtext;
         this.textPos = {x:2, y:2};
         this.fontSize = 15;
@@ -23,6 +23,13 @@ export default class ZMLabel extends ZMClass{
     setText(text){
         this.text = text;
         return this;
+    }
+    getTextString(){
+        if(typeof this.text == 'function'){
+            return this.text();
+        }else {
+            return this.text;
+        }
     }
     setTextPos(textPos){
         this.textPos = textPos;
@@ -49,10 +56,10 @@ export default class ZMLabel extends ZMClass{
         return this;
     }
     showing(x, y, w, h){//覆盖父类中showing方法
-        super.showing(x, y, w, h);
         var _context = JMain.JForm.context;
-        if (this.text) {
-            _context.fillStyle = this.fontColor.data;
+        var text = this.getTextString();
+        if (text) {
+            _context.fillStyle = typeof this.fontColor === 'string' ? typeof this.fontColor : this.fontColor.data;
             _context.font = this.fontType + " " + parseInt(this.fontSize * (JMain.JZoom.y + JMain.JZoom.x) / 2) + "px serif";
             _context.textBaseline = this.textBaseline;
             _context.textAlign = this.textAlign;
@@ -71,12 +78,16 @@ export default class ZMLabel extends ZMClass{
             }else if(_context.textBaseline=="bottom"){
                 y1=y +h- parseInt(this.textPos.y * JMain.JZoom.y);
             }
-            _context.fillText(this.text,x1,y1, this.size.width);
+            if(!this.size.width){
+                this.size.width =  _context.measureText(text).width+4;
+            }
+            _context.fillText(text,x1,y1, this.width);
         }
         if(this.isSelect){
             _context.strokeStyle = ZMColor.red.data;
             _context.lineWidth = 1;
             _context.strokeRect(x , y,w - _context.lineWidth, h - _context.lineWidth);
         }
+        super.showing(x, y, w, h);
     }
 }

@@ -94,10 +94,7 @@ pro.reset = function(){
         if(!this.seats.hasOwnProperty(p)) continue;
         var currentPlayer = this.seats[p];
         if (currentPlayer){
-            currentPlayer.isReady = false;
-            currentPlayer.isLandLord = false;
-            currentPlayer.cardList = [];
-            currentPlayer.robLandScore = 0;
+            currentPlayer.reset();
         }
     }
 };

@@ -4,13 +4,16 @@
 import ZMClass from "../base/zmClass"
 import ZMLabel from "./zmLabel"
 import ZMColor from "../common/zmColor"
+import ZMPosition from "../common/zmPosition"
 
 export default class ZMButton extends ZMClass{
     keyCode = null;
     buttonLabel = null;//
     constructor(argP, argWH){
         super(argP, argWH);
-        this.buttonLabel = new ZMLabel({x:0, y:0}).setSize(argWH).setTextBaseline("middle").setTextAlign("center").setFontType("bold").setFontSize(20);
+        let self = this;
+        this.buttonLabel = new ZMLabel(new ZMPosition(()=>self.width/2,()=>self.height/2),"").setAnchorPoint({x:0.5,y:0.5});
+        this.buttonLabel.setSize(argWH).setTextBaseline("middle").setTextAlign("center").setFontType("bold").setFontSize(20);
         this.addControlInLast([this.buttonLabel]);
     };
     setText(text){
@@ -20,7 +23,7 @@ export default class ZMButton extends ZMClass{
     setSize(size){
         if(size){
             this.size = size;
-            this.buttonLabel.setSize({width:size.width, height:size.height});
+            this.buttonLabel.setSize(size);
         }
         return this;
     }

@@ -7,7 +7,8 @@ littleServer 是nodejs服务器代码
 
 下面是我的一些效果图：
 
-![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_0787.JPG)
-![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_1100.PNG)
-![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_6021.JPG)
+![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_1109.JPG)
+![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_1110.PNG)
+![Alt text](https://github.com/Zhang19910325/nodejs-server-wechat-landLordGame/blob/master/IMG_1111.JPG)
+
 

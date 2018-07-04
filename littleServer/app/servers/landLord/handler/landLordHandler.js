@@ -289,6 +289,9 @@ var notifyRobLandLord = function(self, player, score){
     robLandInfoNty.setNextSeat(self.deskManager.nextSeatNo(player.seatNo));
     desk.curRobLandSeat = self.deskManager.nextSeatNo(player.seatNo);
     desk.send(AppCommonPb.Cmd.KLANDLORDROBLANDNTY, robLandInfoNty.serializeBinary());
+    if (desk.robRound < 3) {
+        checkRobLordTimeout(self, desk.seats[desk.curRobLandSeat]);
+    }
 };
 var setLandLord = function(self, desk){
     var setLandLordNty = new AppCommonPb.SetLandLordNty;
@@ -362,6 +365,10 @@ var handleRobLandReq = function(self, recvPacket, session, next){
     if(player.seatNo != desk.curRobLandSeat){
         robLandRsp.setRspHead(getRspHead(0x10006, "当前不是您叫地主"));
     }else {
+        if(player.robTimeoutInterval) {
+            clearTimeout(player.robTimeoutInterval);
+            player.robTimeoutInterval = undefined;
+        }
         if (!score) {
             desk.robRound++;
             desk.robSeatList.push(player.seatNo);
@@ -468,10 +475,7 @@ var getRspHead = function(code = 0, des){
 var playCard = function(self, data){
     var uid = data.uid;
     var cardsList = data.cardsList || [];
-    var player = self.playerManager.getPlayerInfoByUid(uid);
-    if(!player){
-        player = self.aIPlayerManager.getPlayerInfoByUid(uid);
-    }
+    var player = self.getPlayerWithUid(uid);
 
     var desk = self.deskManager.getDeskByNo(player.deskNo);
     var nextSeatNo = self.deskManager.nextSeatNo(player.seatNo);
@@ -527,7 +531,7 @@ var playCard = function(self, data){
 };
 
 var aiPlayCard = function(self, uid){
-    var player = self.aIPlayerManager.getPlayerInfoByUid(uid);
+    var player = self.getPlayerWithUid(uid);
     var desk = self.deskManager.getDeskByNo(player.deskNo);
 
     var ai = new AILogic(player),

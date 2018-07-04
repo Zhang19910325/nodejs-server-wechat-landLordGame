@@ -281,7 +281,7 @@ export default class LandLordPlayingScene extends ZMClass{
 
         //左边人物的头像
         let leftAvatar = new ZMClass({x:5,y:this.height/2-15}, {width:40, height:40}).setAnchorPoint({x:0,y:0.5}).setRadius(20);
-        setImageWithUrl(leftAvatar, userInfo['avatarUrl']);
+        setImageWithUrl(leftAvatar, ZMResourceData.Images.btn.path);
         this.leftAvatar = leftAvatar;
         //左边的名字
         let leftName = new ZMLabel(pos(()=>leftAvatar.left,()=>leftAvatar.bottom+8),"左边的名字").setFontSize(10).setAnchorPoint({x:0,y:0}).setFontColor(ZMColor.white);
@@ -315,7 +315,7 @@ export default class LandLordPlayingScene extends ZMClass{
 
         //右边人物的头像
         let rightAvatar = new ZMClass({x:this.width - 5,y:this.height/2-15}, {width:40, height:40}).setAnchorPoint({x:1,y:0.5}).setRadius(20);
-        setImageWithUrl(rightAvatar, userInfo['avatarUrl']);
+        setImageWithUrl(rightAvatar, ZMResourceData.Images.btn.path);
         this.rightAvatar = rightAvatar;
         let rightName = new ZMLabel(pos(()=>rightAvatar.right,()=>rightAvatar.bottom+8),"右边的名字").setFontSize(10).setAnchorPoint({x:1,y:0}).setFontColor(ZMColor.white);
         this.rightName = rightName;
@@ -341,7 +341,7 @@ export default class LandLordPlayingScene extends ZMClass{
 
         //自己人物的头像
         let selfAvatar = new ZMClass({x:this.width/2,y:this.height - 5}, {width:40, height:40}).setAnchorPoint({x:0.5,y:1}).setRadius(20);
-        setImageWithUrl(selfAvatar, userInfo['avatarUrl']);
+        setImageWithUrl(selfAvatar, userInfo['avatarUrl'] && userInfo["avatarUrl"].length ? userInfo["avatarUrl"]: ZMResourceData.Images.btn.path);
         this.selfAvatar = selfAvatar;
         let selfName = new ZMLabel(pos(()=>selfAvatar.right + 5,()=>selfAvatar.centerY),"自己的名字").setFontSize(10).setAnchorPoint({x:0,y:0.5}).setFontColor(ZMColor.white);
         this.selfName = selfName;
@@ -461,7 +461,7 @@ export default class LandLordPlayingScene extends ZMClass{
     updateDeskPlayerInfo(){
         let setPlayerAvatarAndName = function(avatarImg, nameLabel, player){
             if(player){
-                setImageWithUrl(avatarImg, player.avatarUrl);
+                player.avatarUrl.length && setImageWithUrl(avatarImg, player.avatarUrl);
                 nameLabel.setText(player.name);
             }
         };

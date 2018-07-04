@@ -76,8 +76,8 @@ export default class Main {
                     });
                 });
                 netService.connect({
-                    //"url" : "wss://www.lovelijing.top",
-                    "url" : "ws://127.0.0.1:30000",
+                    "url" : "wss://www.lovelijing.top",
+                    //"url" : "ws://192.168.0.50:30000",
                     success : function(){console.log("连接建立成功");},
                     fail:function(){console.log("请求链接失败");},
                     complete:function(err){console.log("链接请求回来", err);}
